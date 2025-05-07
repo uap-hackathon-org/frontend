@@ -125,10 +125,30 @@ export default function WorkshopsPage() {
     return new Date(dateString).toLocaleTimeString(undefined, options);
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300 }
+    }
+  };
+
   return (
-    <main className={`${playfair.className} mt-4 w-full overflow-hidden scrollbar-hidden min-h-screen bg-main-bg dark:bg-menu-secondary`}>
+    <main className={`${playfair.className} mt-4 w-full overflow-hidden scrollbar-hidden min-h-screen bg-gradient-to-b from-indigo-50 to-white dark:from-slate-900 dark:to-slate-800`}>
       <Toaster />
-      <section className='h-full w-[90%] mx-auto p-8 bg-light-blue dark:bg-slate-900 rounded-xl'>
+      <section className='h-full w-[90%] mx-auto p-8 bg-white dark:bg-slate-900 rounded-xl shadow-xl'>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,11 +157,11 @@ export default function WorkshopsPage() {
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className={`${poppins.className} text-3xl font-bold text-text-primary mb-2`}>
-                {t('workshops')}
+              <h1 className={`${poppins.className} text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2`}>
+                Workshops & Hackathons
               </h1>
               <p className='text-gray-600 dark:text-gray-300'>
-                Join workshops and hackathons to enhance your skills and build your network
+                Join industry-led events to enhance your skills and expand your network
               </p>
             </div>
             
@@ -151,16 +171,16 @@ export default function WorkshopsPage() {
                   placeholder="Search events..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full md:w-[250px]"
+                  className="pl-10 w-full md:w-[250px] border-indigo-200 dark:border-indigo-900 focus:ring-indigo-500"
                 />
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-400" />
               </div>
               <div className="flex gap-2">
                 <Tabs defaultValue="all" value={eventType} onValueChange={setEventType} className="w-full sm:w-auto">
-                  <TabsList className="grid grid-cols-3 w-full sm:w-[280px]">
-                    <TabsTrigger value="all">All Events</TabsTrigger>
-                    <TabsTrigger value="workshop">Workshops</TabsTrigger>
-                    <TabsTrigger value="hackathon">Hackathons</TabsTrigger>
+                  <TabsList className="grid grid-cols-3 w-full sm:w-[280px] bg-indigo-100 dark:bg-indigo-900/30">
+                    <TabsTrigger value="all" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">All Events</TabsTrigger>
+                    <TabsTrigger value="workshop" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Workshops</TabsTrigger>
+                    <TabsTrigger value="hackathon" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Hackathons</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -172,7 +192,7 @@ export default function WorkshopsPage() {
             <div className="flex flex-wrap gap-2 mb-6">
               <Badge 
                 variant={tagFilter === 'all' ? 'primary' : 'outline'} 
-                className="cursor-pointer"
+                className={`cursor-pointer ${tagFilter === 'all' ? 'bg-indigo-600' : 'hover:bg-indigo-100 dark:hover:bg-indigo-900/20'}`}
                 onClick={() => setTagFilter('all')}
               >
                 All Tags
@@ -181,7 +201,7 @@ export default function WorkshopsPage() {
                 <Badge 
                   key={tag} 
                   variant={tagFilter === tag ? 'primary' : 'outline'}
-                  className="cursor-pointer"
+                  className={`cursor-pointer ${tagFilter === tag ? 'bg-indigo-600' : 'hover:bg-indigo-100 dark:hover:bg-indigo-900/20'}`}
                   onClick={() => setTagFilter(tag)}
                 >
                   {tag}
@@ -194,7 +214,7 @@ export default function WorkshopsPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
               {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="bg-white dark:bg-dark-2 rounded-xl p-6 h-64"></div>
+                <div key={item} className="bg-white dark:bg-slate-800 rounded-xl p-6 h-64 shadow-md"></div>
               ))}
             </div>
           ) : error ? (
@@ -209,14 +229,14 @@ export default function WorkshopsPage() {
               <div className="flex items-center mb-6">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   Showing {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
-                  {eventType !== 'all' && <span> of type <Badge className="ml-1 capitalize">{eventType}</Badge></span>}
-                  {tagFilter && tagFilter !== 'all' && <span> with tag <Badge className="ml-1">{tagFilter}</Badge></span>}
+                  {eventType !== 'all' && <span> of type <Badge className="ml-1 capitalize bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400">{eventType}</Badge></span>}
+                  {tagFilter && tagFilter !== 'all' && <span> with tag <Badge className="ml-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400">{tagFilter}</Badge></span>}
                 </div>
                 {(eventType !== 'all' || tagFilter || searchTerm) && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="ml-4 text-xs"
+                    className="ml-4 text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                     onClick={() => {
                       setSearchTerm('');
                       setEventType('all');
@@ -235,16 +255,21 @@ export default function WorkshopsPage() {
                   <p className="text-gray-600 dark:text-gray-400 mb-4">Try adjusting your search or filter criteria</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {filteredEvents.map((event) => {
                     const isHackathon = event.event_type === 'hackathon';
                     return (
                       <motion.div 
                         key={event.id} 
-                        whileHover={{ y: -5 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
+                        variants={itemVariants}
+                        whileHover={{ y: -5, boxShadow: "0 12px 24px -8px rgba(0, 0, 0, 0.15)" }}
                       >
-                        <Card className="h-full bg-white dark:bg-dark-2 border-none overflow-hidden">
+                        <Card className="h-full bg-white dark:bg-slate-800 border-none overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
                           <div className="relative">
                             <div 
                               className="h-32 w-full bg-cover bg-center" 
@@ -252,21 +277,39 @@ export default function WorkshopsPage() {
                                 backgroundImage: `url(${event.cover_image || '/events/default-event.jpg'})`,
                                 backgroundPosition: 'center' 
                               }}
-                            ></div>
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            </div>
                             <Badge 
-                              className={`absolute top-3 right-3 ${isHackathon ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'}`}
+                              className={`absolute top-3 right-3 ${isHackathon ? 'bg-purple-600 text-white' : 'bg-indigo-600 text-white'}`}
                             >
                               {isHackathon ? 'Hackathon' : 'Workshop'}
                             </Badge>
+                            <div className="absolute bottom-2 left-3 text-white font-medium">
+                              <div className="flex items-center text-sm">
+                                <FaCalendarAlt className="mr-2" />
+                                {isHackathon ? (
+                                  `${formatDate(event.start_date).split(',')[0]} - ${formatDate(event.end_date).split(',')[0]}`
+                                ) : (
+                                  formatDate(event.start_date).split(',')[0]
+                                )}
+                              </div>
+                            </div>
                           </div>
                           
                           <CardHeader className="pb-2">
                             <div className="flex justify-between items-start">
                               <div>
-                                <CardTitle className="text-xl">{event.title}</CardTitle>
+                                <CardTitle className="text-xl text-indigo-900 dark:text-indigo-300">{event.title}</CardTitle>
                                 <div className="flex items-center mt-1 text-sm text-gray-600 dark:text-gray-400">
                                   <span className="font-medium">By</span> 
-                                  <span className="ml-1">{event.organized_by_name}</span>
+                                  <span className="ml-1 flex items-center">
+                                    <Avatar className="h-4 w-4 mr-1">
+                                      <AvatarImage src={event.organizer_logo || '/company-logo.png'} alt={event.organized_by_name} />
+                                      <AvatarFallback>{event.organized_by_name.substring(0, 1)}</AvatarFallback>
+                                    </Avatar>
+                                    {event.organized_by_name}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -279,7 +322,7 @@ export default function WorkshopsPage() {
                             
                             <div className="flex flex-wrap gap-1 mb-4">
                               {event.tags && event.tags.map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
+                                <Badge key={index} variant="outline" className="text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800">
                                   {tag}
                                 </Badge>
                               ))}
@@ -287,31 +330,20 @@ export default function WorkshopsPage() {
                             
                             <div className="space-y-2">
                               <div className="flex items-center text-sm">
-                                <FaCalendarAlt className="mr-2 text-gray-500" />
-                                <span className="text-gray-700 dark:text-gray-300 font-medium">{isHackathon ? 'Dates:' : 'Date:'}</span>
-                                <span className="ml-2 text-gray-600 dark:text-gray-400">
-                                  {isHackathon ? (
-                                    `${formatDate(event.start_date)} - ${formatDate(event.end_date)}`
-                                  ) : (
-                                    formatDate(event.start_date)
-                                  )}
-                                </span>
-                              </div>
-                              <div className="flex items-center text-sm">
-                                <FaClock className="mr-2 text-gray-500" />
+                                <FaClock className="mr-2 text-indigo-500" />
                                 <span className="text-gray-700 dark:text-gray-300 font-medium">Time:</span>
                                 <span className="ml-2 text-gray-600 dark:text-gray-400">
                                   {isHackathon ? 'Multiple sessions' : `${formatTime(event.start_date)} - ${formatTime(event.end_date)}`}
                                 </span>
                               </div>
                               <div className="flex items-center text-sm">
-                                <FaMapMarkerAlt className="mr-2 text-gray-500" />
+                                <FaMapMarkerAlt className="mr-2 text-indigo-500" />
                                 <span className="text-gray-700 dark:text-gray-300 font-medium">Location:</span>
                                 <span className="ml-2 text-gray-600 dark:text-gray-400">{event.location}</span>
                               </div>
                               {isHackathon && event.prizes && (
                                 <div className="flex items-start text-sm">
-                                  <FaTrophy className="mr-2 text-gray-500 mt-1" />
+                                  <FaTrophy className="mr-2 text-indigo-500 mt-1" />
                                   <div>
                                     <span className="text-gray-700 dark:text-gray-300 font-medium">Prizes:</span>
                                     <div className="ml-2 text-gray-600 dark:text-gray-400">
@@ -329,14 +361,14 @@ export default function WorkshopsPage() {
                           
                           <CardFooter className="flex flex-wrap items-center justify-between">
                             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <FaUsers className="mr-2" />
+                              <FaUsers className="mr-2 text-indigo-500" />
                               <span>
                                 {event.max_participants} {event.max_participants === 1 ? 'spot' : 'spots'} 
-                                {isHackathon && event.max_team_size && `(teams of ${event.max_team_size})`}
+                                {isHackathon && event.max_team_size && ` (teams of ${event.max_team_size})`}
                               </span>
                             </div>
                             <div className="flex">
-                              <Button size="sm" variant="primary">
+                              <Button size="sm" variant="primary" className="bg-indigo-600 hover:bg-indigo-700">
                                 {new Date(event.registration_deadline) > new Date() 
                                   ? 'Register Now' 
                                   : 'View Details'}
@@ -347,7 +379,7 @@ export default function WorkshopsPage() {
                       </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               )}
             </>
           )}

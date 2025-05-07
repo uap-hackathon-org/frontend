@@ -12,41 +12,43 @@ import Hero from '@/components/utils/Hero';
 import Image from 'next/image';
 import { Toaster } from "@/components/ui/components/toaster"
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/language/LanguageContext'
 
 export default function RootLayout({ children }) {
   const pathname = usePathname()
   const router = useRouter()
   const params = useParams()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const { t } = useLanguage();
 
   const navItems = [
     {
-      title: "Dashboard",
+      title: t("dashboard"),
       to: `/dashboard/${params.id}`,
       icon: <LuLayoutDashboard size={20} />,
     },
     {
-      title: "Running Tasks",
+      title: t("runningTasks"),
       to: `/dashboard/${params.id}/running-tasks`,
       icon: <FaTasks size={20} />,
     },
     {
-      title: "Leaderboard",
+      title: t("leaderboard"),
       to: `/dashboard/${params.id}/leaderboard`,
       icon: <FaTrophy size={20} />,
     },
     {
-      title: "Certificates",
+      title: t("certificates"),
       to: `/dashboard/${params.id}/certificates`,
       icon: <FaCertificate size={20} />,
     },
     {
-      title: "Virtual Sessions",
+      title: t("virtualSessions"),
       to: `/dashboard/${params.id}/virtual-sessions`,
       icon: <FaVideo size={20} />,
     },
     {
-      title: "Workshops Enrolled",
+      title: t("workshopsEnrolled"),
       to: `/dashboard/${params.id}/workshops-enrolled`,
       icon: <FaLaptopCode size={20} />,
     },
@@ -121,9 +123,9 @@ export default function RootLayout({ children }) {
                   <h3 className="font-medium text-gray-900 dark:text-white">Student User</h3>
                   <div className="flex items-center gap-1">
                     <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
-                      Level 2
+                      {t("level")} 2
                     </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Developer</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("developer")}</p>
                   </div>
                 </div>
               </div>
@@ -163,7 +165,7 @@ export default function RootLayout({ children }) {
                   <CgCompressLeft size={20} />
                 </span>
                 {!isSidebarCollapsed && (
-                  <span className="ml-3">Collapse Sidebar</span>
+                  <span className="ml-3">{t("collapseSidebar")}</span>
                 )}
               </button>
             </div>
@@ -177,7 +179,7 @@ export default function RootLayout({ children }) {
             >
               <FiLogOut size={20} />
               {!isSidebarCollapsed && (
-                <span className="ml-3">Sign Out</span>
+                <span className="ml-3">{t("signOut")}</span>
               )}
             </button>
           </div>

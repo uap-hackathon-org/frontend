@@ -14,18 +14,13 @@ import { Progress } from '@/components/ui/components/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/components/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/avatar'
 import { Slider } from '@/components/ui/components/slider'
-<<<<<<< HEAD
-import { FaSearch, FaLaptopCode, FaFilter, FaRegClock, FaCog, FaTrophy, FaClipboardCheck, FaUserTie, FaCalendarAlt } from 'react-icons/fa'
-import Link from 'next/link';
-import api from '@/axiosInstance';
-=======
 import { ScrollArea } from '@/components/ui/components/scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/components/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/components/dropdown-menu'
 import { FaSearch, FaLaptopCode, FaFilter, FaRegClock, FaCog, FaTrophy, FaClipboardCheck, FaUserTie, FaCalendarAlt, FaFireAlt, FaStar, FaExclamationCircle, FaBolt, FaDiceD20, FaMap, FaBrain, FaLayerGroup, FaChartLine, FaSortAmountDown, FaSortAmountUp, FaEllipsisV, FaLock, FaUnlock } from 'react-icons/fa'
 import { HiOutlineQueueList, HiOutlineSquare3Stack3D } from 'react-icons/hi2'
 import Link from 'next/link'
->>>>>>> 18cead3dfbcb3aca6c17144b041d515dcf82dc42
+import api from '@/axiosInstance';
 
 // Import mock data (will be replaced with API calls later)
 import { microTasks as mockTasks, skillCategories, difficultyLevels } from '@/lib/mock'
@@ -285,24 +280,24 @@ export default function MicroTasksPage() {
               transition={{ duration: 0.5 }}
             >
               <div className="flex-1">
-                <h1 className={`${poppins.className} text-4xl md:text-5xl font-bold text-white mb-3`}>
+                <h1 className={`${poppins.className} text-4xl md:text-5xl font-bold dark:text-white text-black mb-3`}>
                   {t('microTasks')}  
                 </h1>
-                <p className="text-orange-100 text-lg max-w-xl mb-6">
+                <p className="dark:text-orange-100 text-lg max-w-xl mb-6 text-orange-text-outline">
                   Complete skill-building quests to level up your abilities and climb the leaderboard
                 </p>
                 <div className="flex items-center space-x-4">
                   <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
-                    <div className="text-2xl font-bold">{tasks.length}</div>
-                    <div className="text-sm">Available Tasks</div>
+                    <div className="text-2xl font-bold dark:text-white text-orange-dark" >{tasks.length}</div>
+                    <div className="text-sm dark:text-white text-orange-dark">Available Tasks</div>
                   </div>
                   <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
-                    <div className="text-2xl font-bold">1,250</div>
-                    <div className="text-sm">Points Possible</div>
+                    <div className="text-2xl font-bold dark:text-white text-orange-dark">1,250</div>
+                    <div className="text-sm dark:text-white text-orange-dark">Points Possible</div>
                   </div>
                   <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
-                    <div className="text-2xl font-bold">5</div>
-                    <div className="text-sm">New Today</div>
+                    <div className="text-2xl font-bold dark:text-white text-orange-dark">5</div>
+                    <div className="text-sm dark:text-white text-orange-dark">New Today</div>
                   </div>
                 </div>
               </div>

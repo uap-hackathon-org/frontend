@@ -4,6 +4,8 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
+  DialogHeader,
 } from "@/components/ui/components/dialog"
 import { Input } from "@/components/ui/components/input"
 import { FcGoogle } from 'react-icons/fc'
@@ -74,7 +76,10 @@ export function LoginModal() {
         <Button variant="text" className="text-text-primary font-bold">Sign In</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px] p-0 gap-0 bg-white dark:bg-menu-bg border border-gray-200 dark:border-gray-800 shadow-xl">
-        <div className="p-8 flex flex-col items-center bg-white dark:bg-menu-bg rounded-lg">
+        <DialogHeader className="p-4 pb-0">
+          <DialogTitle className="sr-only">Sign In</DialogTitle>
+        </DialogHeader>
+        <div className="p-8 pt-4 flex flex-col items-center bg-white dark:bg-menu-bg rounded-lg">
           <h2 className="text-xl font-semibold mb-1 text-gray-900 dark:text-white">Please sign in to continue</h2>
 
           <button className="w-full mt-6 flex items-center justify-center gap-2 py-2.5 border border-gray-300 dark:border-gray-700 rounded-full bg-background transition-colors">

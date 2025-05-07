@@ -34,6 +34,9 @@ function ClientMicroTaskDetails({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [userRole, setUserRole] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   
   // Format date
   const formatDate = (dateString) => {
@@ -54,6 +57,56 @@ function ClientMicroTaskDetails({ params }) {
     if (!deadline) return false;
     return new Date(deadline) < new Date();
   };
+
+  // Get user role from localStorage
+  useEffect(() => {
+    // Check if we're in the browser environment
+    if (typeof window !== 'undefined') {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const parsedToken = JSON.parse(token);
+          // Extract role from token
+          setUserRole(parsedToken.role || null);
+          console.log('User role:', parsedToken.role);
+        }
+      } catch (err) {
+        console.error('Error parsing token:', err);
+      }
+    }
+  }, []);
+
+  // Fetch submissions if user is a company
+  useEffect(() => {
+    if (userRole === 'company' && unwrappedParams?.id) {
+      const fetchSubmissions = async () => {
+        setLoadingSubmissions(true);
+        try {
+          const response = await api.get(`/microtasks/${unwrappedParams.id}/submissions`, {
+            params: {
+              skip: 0,
+              limit: 20
+            }
+          });
+          
+          if (response?.data && Array.isArray(response.data)) {
+            setSubmissions(response.data);
+            console.log('Fetched submissions:', response.data);
+          } else {
+            console.warn('Invalid submissions data format');
+            setSubmissions([]);
+          }
+        } catch (err) {
+          console.error('Error fetching submissions:', err);
+          setSubmissions([]);
+        } finally {
+          setLoadingSubmissions(false);
+        }
+      };
+      
+      fetchSubmissions();
+    }
+  }, [userRole, unwrappedParams?.id]);
 
   // Fetch microtask data
   useEffect(() => {
@@ -154,6 +207,16 @@ function ClientMicroTaskDetails({ params }) {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setSelectedFile(e.dataTransfer.files[0]);
     }
+  };
+
+  // Calculate days remaining until deadline
+  const getDaysRemaining = (deadline) => {
+    if (!deadline) return 0;
+    const deadlineDate = new Date(deadline);
+    const today = new Date();
+    const diffTime = deadlineDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
   };
 
   // Handle task submission
@@ -368,9 +431,14 @@ function ClientMicroTaskDetails({ params }) {
               {/* Task content */}
               <CardContent>
                 <Tabs defaultValue="overview" className="mt-4" onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="submission">Submission</TabsTrigger>
+                    {userRole === 'student' ? (
+                      <TabsTrigger value="submission">Submit Solution</TabsTrigger>
+                    ) : (
+                      <TabsTrigger value="submissions">View Submissions</TabsTrigger>
+                    )}
+                    <TabsTrigger value="details">Details</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="overview" className="mt-4 space-y-4">
@@ -415,13 +483,15 @@ function ClientMicroTaskDetails({ params }) {
                     )}
                   </TabsContent>
                   
-                  <TabsContent value="submission" className="mt-4 space-y-4">
-                    {isTaskAvailable ? (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4">Submit Your Solution</h3>
-                        <p className="mb-4">Upload your solution files or provide a link to your work.</p>
-                        
-                        {submitSuccess ? (
+                  {/* Student submission tab */}
+                  {userRole === 'student' && (
+                    <TabsContent value="submission" className="mt-4 space-y-4">
+                      {isTaskAvailable ? (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Submit Your Solution</h3>
+                          <p className="mb-4">Upload your solution files or provide a link to your work.</p>
+                          
+                          {submitSuccess ? (
                           <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6 text-center">
                             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 dark:bg-green-800 rounded-full mb-4">
                               <FaClipboardCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -525,24 +595,200 @@ function ClientMicroTaskDetails({ params }) {
                               </Button>
                             </div>
                           </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <FaClock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                          <h3 className="text-lg font-semibold mb-2">
+                            {isDeadlinePassed(microTask.deadline) ? 'Deadline has passed' : 'This task is no longer active'}
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            {isDeadlinePassed(microTask.deadline) 
+                              ? `The submission deadline was ${formatDate(microTask.deadline)}`
+                              : 'The task has been closed by the company'}
+                          </p>
+                          <Link href="/micro-tasks">
+                            <Button variant="outline">Browse Other Tasks</Button>
+                          </Link>
+                        </div>
+                      )}
+                    </TabsContent>
+                  )}
+                  
+                  {/* Company submissions tab */}
+                  {userRole === 'company' && (
+                    <TabsContent value="submissions" className="mt-4 space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Student Submissions</h3>
+                        {loadingSubmissions ? (
+                          <div className="flex justify-center py-8">
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+                          </div>
+                        ) : submissions.length === 0 ? (
+                          <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            <div className="mx-auto h-12 w-12 text-gray-400 mb-4 flex items-center justify-center">
+                              <FaClipboardCheck className="h-8 w-8" />
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">No Submissions Yet</h3>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                              There are no student submissions for this task yet.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {submissions.map((submission) => (
+                              <Card key={submission.id} className="overflow-hidden">
+                                <CardHeader className="pb-2">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <div className="flex items-center gap-2">
+                                        <Badge className={`${submission.status === 'pending' ? 'bg-yellow-500' : submission.status === 'approved' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                          {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                                        </Badge>
+                                        <span className="text-sm text-gray-500">
+                                          Submitted on {formatDate(submission.submission_date)}
+                                        </span>
+                                      </div>
+                                      <h4 className="text-lg font-semibold mt-1">Submission #{submission.id}</h4>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-sm font-medium">Student ID: {submission.student_id}</p>
+                                      {submission.score !== null && (
+                                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                          Score: {submission.score}/10
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardHeader>
+                                <CardContent>
+                                  {submission.file_url ? (
+                                    <div className="border rounded-md p-3 bg-gray-50 dark:bg-gray-800/50">
+                                      <a 
+                                        href={submission.file_url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
+                                      >
+                                        <FaFileAlt className="mr-2" />
+                                        View Submission File
+                                      </a>
+                                    </div>
+                                  ) : (
+                                    <p className="text-gray-500 italic">No file attached</p>
+                                  )}
+                                  
+                                  {submission.feedback && (
+                                    <div className="mt-4">
+                                      <h5 className="font-medium mb-1">Feedback:</h5>
+                                      <p className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+                                        {submission.feedback}
+                                      </p>
+                                    </div>
+                                  )}
+                                </CardContent>
+                                {submission.status === 'pending' && (
+                                  <CardFooter className="border-t pt-4 flex justify-end gap-2">
+                                    <Button variant="outline" className="border-red-500 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/30">
+                                      Reject
+                                    </Button>
+                                    <Button className="bg-green-600 hover:bg-green-700">
+                                      Approve
+                                    </Button>
+                                  </CardFooter>
+                                )}
+                              </Card>
+                            ))}
+                          </div>
                         )}
                       </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <FaClock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">
-                          {isDeadlinePassed(microTask.deadline) ? 'Deadline has passed' : 'This task is no longer active'}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">
-                          {isDeadlinePassed(microTask.deadline) 
-                            ? `The submission deadline was ${formatDate(microTask.deadline)}`
-                            : 'The task has been closed by the company'}
-                        </p>
-                        <Link href="/micro-tasks">
-                          <Button variant="outline">Browse Other Tasks</Button>
-                        </Link>
+                    </TabsContent>
+                  )}
+                  
+                  {/* Details tab for both roles */}
+                  <TabsContent value="details" className="mt-4 space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Task Details</h3>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Task Information</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">ID:</span>
+                                <span className="font-medium">{microTask.id}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Category:</span>
+                                <span className="font-medium">{microTask.category || 'General'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Created:</span>
+                                <span className="font-medium">{formatDate(microTask.creation_date)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Status:</span>
+                                <Badge className={microTask.is_active ? 'bg-green-500' : 'bg-red-500'}>
+                                  {microTask.is_active ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Submission Details</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Deadline:</span>
+                                <span className="font-medium">{formatDate(microTask.deadline)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Max Submissions:</span>
+                                <span className="font-medium">{microTask.max_submissions || 'Unlimited'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Points:</span>
+                                <span className="font-medium">{microTask.points}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Time Left:</span>
+                                <span className="font-medium">
+                                  {isDeadlinePassed(microTask.deadline) 
+                                    ? 'Expired' 
+                                    : `${getDaysRemaining(microTask.deadline)} days`}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {microTask.created_by && (
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Created By</h4>
+                            <div className="flex items-center">
+                              <Avatar className="h-10 w-10 mr-3">
+                                <AvatarImage src="/company-logo.png" alt={microTask.created_by.company_name || 'Company'} />
+                                <AvatarFallback className="bg-indigo-100 text-indigo-800">
+                                  {(microTask.created_by.company_name || 'C').charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{microTask.created_by.company_name || 'Unknown Company'}</p>
+                                {microTask.created_by.id && (
+                                  <Link 
+                                    href={`/company/dashboard/${microTask.created_by.id}`}
+                                    className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+                                  >
+                                    View Company Profile
+                                  </Link>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </TabsContent>
                 </Tabs>
               </CardContent>

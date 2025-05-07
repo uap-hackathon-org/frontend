@@ -113,6 +113,9 @@ importers:
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
+      axios:
+        specifier: ^1.9.0
+        version: 1.9.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -225,6 +228,9 @@ importers:
         specifier: ^3.24.1
         version: 3.24.4
     devDependencies:
+      '@types/node':
+        specifier: ^22.15.14
+        version: 22.15.14
       postcss:
         specifier: ^8
         version: 8.5.3

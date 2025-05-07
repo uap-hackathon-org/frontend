@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/compon
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/avatar'
 import Link from 'next/link'
 import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUsers, FaLaptopCode, FaTrophy, FaSearch, FaFilter, FaTag } from 'react-icons/fa'
+import api from '@/axiosInstance';
 
 // Import mock data (will be replaced with API calls later)
 import { events as mockEvents } from '@/lib/mock'
@@ -86,11 +87,17 @@ export default function WorkshopsPage() {
         // const data = await response.json();
         // setEvents(data);
         
-        // For now, use mock data
-        setTimeout(() => {
-          setEvents(mockEvents);
-          setLoading(false);
-        }, 800); // Simulate API delay
+        const response = await api.get('/api/events')
+        
+        setEvents(response.data);
+        setLoading(false);
+
+
+        // // For now, use mock data
+        // setTimeout(() => {
+        //   setEvents(mockEvents);
+        //   setLoading(false);
+        // }, 800); // Simulate API delay
       } catch (err) {
         setError(err.message);
         setLoading(false);

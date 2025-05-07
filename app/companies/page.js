@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/avatar'
 import Link from 'next/link'
 import { FaBuilding, FaSearch, FaFilter, FaExternalLinkAlt, FaMapMarkerAlt, FaUserTie, FaCalendarAlt } from 'react-icons/fa'
+import api from '@/axiosInstance'
 
 // Import mock data (will be replaced with API calls later)
 import { companies as mockCompanies } from '@/lib/mock'
@@ -85,11 +86,16 @@ export default function CompaniesPage() {
         // const data = await response.json();
         // setCompanies(data);
         
-        // For now, use mock data
-        setTimeout(() => {
-          setCompanies(mockCompanies);
-          setLoading(false);
-        }, 800); // Simulate API delay
+        const response = await api.get('/api/companies')
+
+        setCompanies(response.data);
+        setLoading(false);
+        
+        // // For now, use mock data
+        // setTimeout(() => {
+        //   setCompanies(mockCompanies);
+        //   setLoading(false);
+        // }, 800); // Simulate API delay
       } catch (err) {
         setError(err.message);
         setLoading(false);

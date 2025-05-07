@@ -50,9 +50,9 @@ const handleDownloadPDF = (payment) => {
   doc.setProperties({
     title: "Payment Receipt",
     subject: "Payment Receipt for " + (payment.name || "Service"),
-    author: "TourBuddy",
+    author: "Try Ship",
     keywords: "payment, receipt, invoice",
-    creator: "TourBuddy Payment System"
+    creator: "Try Ship Payment System"
   });
 
   // Define colors
@@ -68,7 +68,7 @@ const handleDownloadPDF = (payment) => {
   doc.setTextColor(255, 255, 255); // White text
   doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
-  doc.text("TourBuddy", 20, 15);
+  doc.text("Try Ship", 20, 15);
   
   doc.setFontSize(12);
   doc.setFont("helvetica", "normal");
@@ -228,9 +228,9 @@ const handleDownloadPDF = (payment) => {
   doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
-  doc.text("Thank you for your business with TourBuddy!", 105, pageHeight - 20, null, null, "center");
-  doc.text("For any inquiries, please contact support@tourbuddy.com", 105, pageHeight - 15, null, null, "center");
-  doc.text("© " + new Date().getFullYear() + " TourBuddy. All rights reserved.", 105, pageHeight - 10, null, null, "center");
+  doc.text("Thank you for your business with Try Ship!", 105, pageHeight - 20, null, null, "center");
+  doc.text("For any inquiries, please contact support@Try Ship.com", 105, pageHeight - 15, null, null, "center");
+  doc.text("© " + new Date().getFullYear() + " Try Ship. All rights reserved.", 105, pageHeight - 10, null, null, "center");
 
   // Add a watermark (very light)
   try {
@@ -239,18 +239,18 @@ const handleDownloadPDF = (payment) => {
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.setFontSize(60);
     doc.setFont("helvetica", "bold");
-    doc.text("TourBuddy", 105, 140, null, null, "center");
+    doc.text("Try Ship", 105, 140, null, null, "center");
     doc.restoreGraphicsState();
   } catch (error) {
     // Fallback if GState is not supported
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2], 0.03);
     doc.setFontSize(60);
     doc.setFont("helvetica", "bold");
-    doc.text("TourBuddy", 105, 140, null, null, "center");
+    doc.text("Try Ship", 105, 140, null, null, "center");
   }
 
   // Save the PDF
-  doc.save("TourBuddy-Receipt.pdf");
+  doc.save("Try Ship-Receipt.pdf");
 };
 
 export default handleDownloadPDF;

@@ -15,7 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/compon
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/avatar'
 import { Slider } from '@/components/ui/components/slider'
 import { FaSearch, FaLaptopCode, FaFilter, FaRegClock, FaCog, FaTrophy, FaClipboardCheck, FaUserTie, FaCalendarAlt } from 'react-icons/fa'
-import Link from 'next/link'
+import Link from 'next/link';
+import api from '@/axiosInstance';
 
 // Import mock data (will be replaced with API calls later)
 import { microTasks as mockTasks, skillCategories, difficultyLevels } from '@/lib/mock'
@@ -113,12 +114,17 @@ export default function MicroTasksPage() {
         // if (!response.ok) throw new Error('Failed to fetch micro tasks');
         // const data = await response.json();
         // setTasks(data);
+
+        const response = await api.get('/api/micro-tasks');
         
-        // For now, use mock data
-        setTimeout(() => {
-          setTasks(mockTasks);
-          setLoading(false);
-        }, 800); // Simulate API delay
+        setTasks(response.data);
+        setLoading(false);
+        
+        // // For now, use mock data
+        // setTimeout(() => {
+        //   setTasks(mockTasks);
+        //   setLoading(false);
+        // }, 800); // Simulate API delay
       } catch (err) {
         setError(err.message);
         setLoading(false);

@@ -13,30 +13,37 @@ import {
 } from 'react-icons/hi';
 
 export default function AdminDashboard({ params }) {
-  // Unwrap params using React.use()
+  // Create a client component wrapper
+  return <ClientAdminDashboard params={params} />;
+}
+
+// Client component that handles all the rendering and state
+function ClientAdminDashboard({ params }) {
+  // Properly unwrap params with React.use() to avoid the warning
   const unwrappedParams = use(params);
-  const { id } = unwrappedParams;
+  const { id } = unwrappedParams || {};
   
   const { toast } = useToast();
-  const { dictionary } = useLanguage();
-  const { t } = dictionary;
-  const [isClient, setIsClient] = useState(false);
+  const { t } = useLanguage();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // This ensures we're now on the client side
-    setIsClient(true);
+    setMounted(true);
   }, []);
   
-  // Only render the full content on the client side
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Loading...</p>
-        </div>
+  // Create a consistent loading component that matches on both server and client
+  const loadingComponent = (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="text-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+        <p className="text-lg text-gray-600 dark:text-gray-300">Loading...</p>
       </div>
-    );
+    </div>
+  );
+  
+  // Only animate after client-side hydration completes
+  if (!mounted) {
+    return loadingComponent;
   }
   
   return (

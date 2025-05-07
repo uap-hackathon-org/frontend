@@ -88,10 +88,10 @@ export default function CompaniesPage() {
         
 
         // // axios call
-        // const response = await api.get('/api/companies')
+        const response = await api.get('/companies')
 
-        // setCompanies(response.data);
-        // setLoading(false);
+        setCompanies(response.data);
+        setLoading(false);
         
         // For now, use mock data
         setTimeout(() => {

@@ -10,7 +10,7 @@ import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { RiRecordCircleLine, RiRecordCircleFill } from 'react-icons/ri';
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/components/button";
-import { Tooltip, TooltipProvider } from "../ui/components/tooltip";
+// Tooltip imports removed to fix error
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -104,91 +104,83 @@ export default function VideoControls(props) {
     >
       {/* Main control bar with primary actions - more compact */}
       <div className="bg-black/50 backdrop-blur-md rounded-xl p-2 shadow-lg border border-border/10 flex justify-center items-center space-x-2">
-        <TooltipProvider>
-        <Tooltip content={trackState.audio ? "Mute Microphone" : "Unmute Microphone"}>
-          <motion.div variants={itemVariants}>
-            <Button
-              variant={trackState.audio ? "default" : "destructive"}
-              size="icon"
-              className="h-12 w-12 rounded-full"
-              onClick={() => mute("audio")}
-            >
-              {trackState.audio ? <BsMic className="h-5 w-5" /> : <BsMicMute className="h-5 w-5" />}
-            </Button>
-          </motion.div>
-        </Tooltip>
+        <motion.div variants={itemVariants}>
+          <Button
+            variant={trackState.audio ? "default" : "destructive"}
+            size="icon"
+            className="h-12 w-12 rounded-full"
+            onClick={() => mute("audio")}
+            aria-label={trackState.audio ? "Mute Microphone" : "Unmute Microphone"}
+          >
+            {trackState.audio ? <BsMic className="h-5 w-5" /> : <BsMicMute className="h-5 w-5" />}
+          </Button>
+        </motion.div>
 
-        <Tooltip content={trackState.video ? "Turn Off Camera" : "Turn On Camera"}>
-          <motion.div variants={itemVariants}>
-            <Button
-              variant={trackState.video ? "default" : "destructive"}
-              size="icon"
-              className="h-12 w-12 rounded-full"
-              onClick={() => mute("video")}
-            >
-              {trackState.video ? <BsCameraVideo className="h-5 w-5" /> : <BsCameraVideoOff className="h-5 w-5" />}
-            </Button>
-          </motion.div>
-        </Tooltip>
+        <motion.div variants={itemVariants}>
+          <Button
+            variant={trackState.video ? "default" : "destructive"}
+            size="icon"
+            className="h-12 w-12 rounded-full"
+            onClick={() => mute("video")}
+            aria-label={trackState.video ? "Turn Off Camera" : "Turn On Camera"}
+          >
+            {trackState.video ? <BsCameraVideo className="h-5 w-5" /> : <BsCameraVideoOff className="h-5 w-5" />}
+          </Button>
+        </motion.div>
 
-        <Tooltip content={isScreenSharing ? "Stop Sharing" : "Share Screen"}>
-          <motion.div variants={itemVariants}>
-            <Button
-              variant={isScreenSharing ? "destructive" : "outline"}
-              size="icon"
-              className="h-12 w-12 rounded-full"
-              onClick={toggleScreenSharing}
-            >
-              {isScreenSharing ? 
-                <MdStopScreenShare className="h-5 w-5" /> : 
-                <MdOutlineScreenShare className="h-5 w-5" />
-              }
-            </Button>
-          </motion.div>
-        </Tooltip>
+        <motion.div variants={itemVariants}>
+          <Button
+            variant={isScreenSharing ? "destructive" : "outline"}
+            size="icon"
+            className="h-12 w-12 rounded-full"
+            onClick={toggleScreenSharing}
+            aria-label={isScreenSharing ? "Stop Sharing" : "Share Screen"}
+          >
+            {isScreenSharing ? 
+              <MdStopScreenShare className="h-5 w-5" /> : 
+              <MdOutlineScreenShare className="h-5 w-5" />
+            }
+          </Button>
+        </motion.div>
 
-        <Tooltip content={isRecording ? "Stop Recording" : "Start Recording"}>
-          <motion.div variants={itemVariants}>
-            <Button
-              variant={isRecording ? "destructive" : "outline"}
-              size="icon"
-              className="h-12 w-12 rounded-full"
-              onClick={toggleRecording}
-            >
-              {isRecording ? 
-                <RiRecordCircleFill className="h-5 w-5 text-red" /> : 
-                <RiRecordCircleLine className="h-5 w-5" />
-              }
-            </Button>
-          </motion.div>
-        </Tooltip>
+        <motion.div variants={itemVariants}>
+          <Button
+            variant={isRecording ? "destructive" : "outline"}
+            size="icon"
+            className="h-12 w-12 rounded-full"
+            onClick={toggleRecording}
+            aria-label={isRecording ? "Stop Recording" : "Start Recording"}
+          >
+            {isRecording ? 
+              <RiRecordCircleFill className="h-5 w-5 text-red" /> : 
+              <RiRecordCircleLine className="h-5 w-5" />
+            }
+          </Button>
+        </motion.div>
 
-        <Tooltip content="Leave Call">
-          <motion.div variants={itemVariants}>
-            <Button
-              variant="destructive"
-              size="icon"
-              className="h-12 w-12 rounded-full bg-red hover:bg-red/90"
-              onClick={() => leaveChannel()}
-            >
-              <RxExit className="h-5 w-5" />
-            </Button>
-          </motion.div>
-        </Tooltip>
-        </TooltipProvider>
+        <motion.div variants={itemVariants}>
+          <Button
+            variant="destructive"
+            size="icon"
+            className="h-12 w-12 rounded-full bg-red hover:bg-red/90"
+            onClick={() => leaveChannel()}
+            aria-label="Leave Call"
+          >
+            <RxExit className="h-5 w-5" />
+          </Button>
+        </motion.div>
         {/* Layout button integrated into primary controls */}
-        <Tooltip content="Change Layout">
-          <motion.div variants={itemVariants}>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-full"
-              onClick={changeLayout}
-            >
-              <BsLayoutSplit className="h-5 w-5" />
-            </Button>
-          </motion.div>
-        </Tooltip>
+        <motion.div variants={itemVariants}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 rounded-full"
+            onClick={changeLayout}
+            aria-label="Change Layout"
+          >
+            <BsLayoutSplit className="h-5 w-5" />
+          </Button>
+        </motion.div>
         
         {/* Settings menu integrated into primary controls */}
         <DropdownMenu>

@@ -115,22 +115,23 @@ export default function VideoSessionPage() {
   }
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="bg-background border-b border-border p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={handleLeaveCall} className="gap-2">
-              <FiArrowLeft />
+    <div className="h-screen flex flex-col overflow-hidden">
+      {/* Compact header with session info */}
+      <div className="bg-background/80 backdrop-blur-sm z-10 border-b border-border py-2 px-4 absolute top-0 left-0 right-0">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={handleLeaveCall} className="gap-1.5 h-8 px-2.5">
+              <FiArrowLeft className="h-4 w-4" />
               {t('Leave')}
             </Button>
             <div>
-              <h1 className="text-lg font-semibold">{session.title}</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-sm font-semibold">{session.title}</h1>
+              <p className="text-xs text-muted-foreground">
                 {t('With')} {session.mentor.name} • {session.startTime} - {session.endTime}
               </p>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             {session.sessionType === 'group' ? (
               <div className="flex items-center gap-1">
                 <span>{t('Group Session')}</span>
@@ -143,8 +144,9 @@ export default function VideoSessionPage() {
         </div>
       </div>
       
+      {/* Video call component - takes full screen height */}
       <motion.div 
-        className="flex-1 flex"
+        className="h-full w-full"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}

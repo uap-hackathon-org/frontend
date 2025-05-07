@@ -283,21 +283,21 @@ export default function MicroTasksPage() {
                 <h1 className={`${poppins.className} text-4xl md:text-5xl font-bold dark:text-white text-black mb-3`}>
                   {t('microTasks')}  
                 </h1>
-                <p className="dark:text-orange-100 text-lg max-w-xl mb-6 text-orange-text-outline">
+                <p className="dark:text-orange-100 text-lg max-w-xl mb-6 text-red-200">
                   Complete skill-building quests to level up your abilities and climb the leaderboard
                 </p>
                 <div className="flex items-center space-x-4">
-                  <div className="dark:bg-white/20 bg-grey-1 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
+                  <div className="dark:bg-white/20 bg-grey-light backdrop-blur-sm px-4 py-2 rounded-lg text-white">
                     <div className="text-2xl font-bold dark:text-white text-orange-dark" >{tasks.length}</div>
-                    <div className="text-sm dark:text-white text-orange-dark">Available Tasks</div>
+                    <div className="text-sm dark:text-white text-grey-1">Available Tasks</div>
                   </div>
-                  <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
+                  <div className="dark:bg-white/20 bg-grey-light backdrop-blur-sm px-4 py-2 rounded-lg text-white">
                     <div className="text-2xl font-bold dark:text-white text-orange-dark">1,250</div>
-                    <div className="text-sm dark:text-white text-orange-dark">Points Possible</div>
+                    <div className="text-sm dark:text-white text-grey-1">Points Possible</div>
                   </div>
-                  <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
+                  <div className="dark:bg-white/20 bg-grey-light backdrop-blur-sm px-4 py-2 rounded-lg text-white">
                     <div className="text-2xl font-bold dark:text-white text-orange-dark">5</div>
-                    <div className="text-sm dark:text-white text-orange-dark">New Today</div>
+                    <div className="text-sm dark:text-white text-grey-1">New Today</div>
                   </div>
                 </div>
               </div>

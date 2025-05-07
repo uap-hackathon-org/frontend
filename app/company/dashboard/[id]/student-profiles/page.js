@@ -348,7 +348,7 @@ function StudentCard({ student, rank, getBadgeColor }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 + (rank * 0.05) }}
     >
-      <Card className="p-5 hover:shadow-md transition-shadow duration-300 overflow-hidden border-l-4 relative" 
+      <Card className="p-10 hover:shadow-md transition-shadow duration-300 overflow-hidden border-l-4 relative" 
            style={{ borderLeftColor: rank <= 3 ? '#F59E0B' : '#64748B' }}>
         {/* Rank indicator */}
         <div className="absolute top-2 right-2 flex items-center">

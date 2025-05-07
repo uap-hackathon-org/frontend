@@ -323,33 +323,40 @@ export default function WorkshopsPage() {
                         whileHover={{ y: -5, boxShadow: "0 12px 24px -8px rgba(0, 0, 0, 0.15)" }}
                       >
                         <Card className="h-full bg-white dark:bg-slate-800 border-none overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
-                          <div className="relative">
-                            <div 
-                              className="h-32 w-full bg-cover bg-center" 
-                              style={{ 
-                                backgroundImage: `url(${event.cover_image || '/events/default-event.jpg'})`,
-                                backgroundPosition: 'center' 
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                            </div>
-                            <Badge 
-                              className={`absolute top-3 right-3 ${isHackathon ? 'bg-purple-600 text-white' : 'bg-indigo-600 text-white'}`}
-                            >
-                              {isHackathon ? 'Hackathon' : 'Workshop'}
-                            </Badge>
-                            <div className="absolute bottom-2 left-3 dark:text-white text-black font-medium">
-                              <div className="flex items-center text-sm">
-                                <FaCalendarAlt className="mr-2" />
-                                {isHackathon ? (
-                                  `${formatDate(event.start_date).split(',')[0]} - ${formatDate(event.end_date).split(',')[0]}`
-                                ) : (
-                                  formatDate(event.start_date).split(',')[0]
-                                )}
-                              </div>
+                        <div className="relative h-32"> {/* Ensure parent has height */}
+                          <div
+                            className="h-full w-full bg-cover bg-center" 
+                            style={{
+                              backgroundImage: `url(/workshop.jpg)`, // Correct path
+                              backgroundPosition: 'center',
+                              backgroundSize: 'cover',
+                              backgroundRepeat: 'no-repeat', // Prevent tiling
+                            }}
+                          >
+                            {/* Gradient overlay with explicit z-index */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+                          </div>
+                          {/* Badge with higher z-index */}
+                          <Badge
+                            className={`absolute top-3 right-3 z-20 ${
+                              isHackathon ? 'bg-purple-600 text-white' : 'bg-indigo-600 text-white'
+                            }`}
+                          >
+                            {isHackathon ? 'Hackathon' : 'Workshop'}
+                          </Badge>
+                          {/* Date with higher z-index */}
+                          <div className="absolute bottom-2 left-3 dark:text-white text-black font-medium z-20">
+                            <div className="flex items-center text-sm">
+                              <FaCalendarAlt className="mr-2" />
+                              {isHackathon ? (
+                                `${formatDate(event.start_date).split(',')[0]} - ${formatDate(event.end_date).split(',')[0]}`
+                              ) : (
+                                formatDate(event.start_date).split(',')[0]
+                              )}
                             </div>
                           </div>
-                          
+                          </div>
+                          {/* <img src='/workshop.jpg' alt='workshop' /> */}
                           <CardHeader className="pb-2">
                             <div className="flex justify-between items-start">
                               <div>

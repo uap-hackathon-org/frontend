@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import ChangePasswordModal from './ChangePasswordModal';
 import ProfileSections from './ProfileSections';
-import useFetch from '@/ApiHandle/useFetch';
+// import useFetch from '@/ApiHandle/useFetch';
+import api from '@/axiosInstance';
 
 const EditButton = ({ onClick }) => {
     return (
@@ -11,7 +12,52 @@ const EditButton = ({ onClick }) => {
 };
 
 const ProfileCard = () => {
-    const { data:profileInfo, loading, setData } = useFetch(`/user/me`);
+    const [profileInfo, setProfileInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    // Fetch student profile data
+    useEffect(() => {
+        const fetchStudentProfile = async () => {
+            setLoading(true);
+            try {
+                const response = await api.get('/api/v1/user/student-profile');
+                
+                if (response?.data) {
+                    setProfileInfo({
+                        ...response.data.user,
+                        ...response.data.profile
+                    });
+                    console.log('Fetched student profile:', response.data);
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            } catch (err) {
+                console.error('Error fetching student profile:', err);
+                setError(err.message);
+                // Set mock data for testing if needed
+                setProfileInfo({
+                    id: 5,
+                    email: "student@example.com",
+                    name: "Student Name",
+                    bio: "Student bio",
+                    img_url: null,
+                    phone: "123-456-7890",
+                    place: "City, Country",
+                    role: "student",
+                    university: "University Name",
+                    graduation_year: "2025",
+                    major: "Computer Science",
+                    total_points: 250,
+                    resume_url: null
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchStudentProfile();
+    }, []);
     
     const [basicFormData, setBasicFormData] = useState({
         name: "",
@@ -26,26 +72,25 @@ const ProfileCard = () => {
 
     const handleSaveClick = async (section) => {
         if (section) {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT}/user/me`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem("token")).access_token,
-                    "ngrok-skip-browser-warning": "69420"
-                },
-                body: JSON.stringify({
+            try {
+                const response = await api.put('/api/v1/user/student-profile', {
                     name: basicFormData.name,
                     phone: basicFormData.phone,
                     place: basicFormData.place
-                })
-            });
-            if(res){
-                setData((prev) => ({ 
-                    ...prev,
-                    name: basicFormData.name,
-                    phone: basicFormData.phone,
-                    place: basicFormData.place
-                }));
+                });
+                
+                if (response?.data) {
+                    setProfileInfo(prev => ({
+                        ...prev,
+                        name: basicFormData.name,
+                        phone: basicFormData.phone,
+                        place: basicFormData.place
+                    }));
+                    console.log('Profile updated successfully');
+                }
+            } catch (err) {
+                console.error('Error updating profile:', err);
+                // Handle error appropriately
             }
         }
         setEditMode(false);

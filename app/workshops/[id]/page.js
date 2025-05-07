@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useLanguage } from '@/lib/language/LanguageContext';
 import { Quicksand, Poppins, Lato } from 'next/font/google';
 import { Toaster } from '@/components/ui/components/toaster';
@@ -20,7 +20,7 @@ const poppins = Lato({ subsets: ['latin'], weight: '700' });
 const playfair = Quicksand({ subsets: ['latin'], weight: '400' });
 
 export default function WorkshopDetailsPage({ params }) {
-  const unwrappedParams = React.use(params);
+  const unwrappedParams = use(params);
   const { t } = useLanguage();
   const { toast } = useToast();
   const [workshop, setWorkshop] = useState(null);
@@ -82,7 +82,7 @@ export default function WorkshopDetailsPage({ params }) {
         } else {
           // Fallback to mock data if API returns invalid data
           console.warn('Invalid data format from API, using mock data instead');
-          const mockWorkshop = mockEvents.find(event => event.id.toString() === params.id.toString());
+          const mockWorkshop = mockEvents.find(event => event.id.toString() === unwrappedParams.id.toString());
           if (mockWorkshop) {
             setWorkshop(mockWorkshop);
           } else {
@@ -94,14 +94,9 @@ export default function WorkshopDetailsPage({ params }) {
         setError(err.message);
         
         // Try to find in mock data as fallback
-        const mockWorkshop = mockEvents.find(event => event.id.toString() === params.id.toString());
+        const mockWorkshop = mockEvents.find(event => event.id.toString() === unwrappedParams.id.toString());
         if (mockWorkshop) {
           setWorkshop(mockWorkshop);
-          toast({
-            title: "Using Mock Data",
-            description: "Couldn't connect to the API. Using sample data instead.",
-            variant: "warning"
-          });
         } else {
           toast({
             title: "Error",

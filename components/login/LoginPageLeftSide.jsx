@@ -14,7 +14,7 @@ export default function LoginPageLeftSide() {
         <div className="w-full h-[45%] bg-[url('/login_texture.png')] bg-[#227f7e]">
             <div className='px-16 py-8'>
                 <div className='flex items-center'>
-                    <Link href={'/'} className={`${kameron.className} text-6xl text-white font-black mx-4`} ><h1>TourBuddy</h1></Link>
+                    <Link href={'/'} className={`${kameron.className} text-6xl text-white font-black mx-4`} ><h1>Try Ship</h1></Link>
                 </div>
                 <h1 className={`text-2xl py-8 drop-shadow-sm text-white  ${manrope.className} mx-4`}>
                 "Book your stay, your way - Effortless booking, unforgettable stays!"

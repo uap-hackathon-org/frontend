@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/avatar'
 import Link from 'next/link'
 import { FaBuilding, FaSearch, FaFilter, FaExternalLinkAlt, FaMapMarkerAlt, FaUserTie, FaCalendarAlt } from 'react-icons/fa'
+import api from '@/axiosInstance'
 
 // Import mock data (will be replaced with API calls later)
 import { companies as mockCompanies } from '@/lib/mock'
@@ -42,24 +43,24 @@ export default function CompaniesPage() {
     // Apply search term filter
     if (searchTerm) {
       filtered = filtered.filter(company => 
-        company.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (company.industries && company.industries.some(industry => 
-          industry.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
+        (company?.company_name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false) ||
+        (company?.description?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false) ||
+        (company?.industries?.some(industry => 
+          industry?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false
+        ) ?? false)
       );
     }
     
     // Apply industry filter
     if (industryFilter && industryFilter !== 'all') {
       filtered = filtered.filter(company => 
-        company.industries && company.industries.includes(industryFilter)
+        company?.industries?.includes(industryFilter) ?? false
       );
     }
     
     // Apply size filter
     if (sizeFilter && sizeFilter !== 'all') {
-      filtered = filtered.filter(company => company.company_size === sizeFilter);
+      filtered = filtered.filter(company => company?.company_size === sizeFilter);
     }
     
     setFilteredCompanies(filtered);
@@ -75,21 +76,38 @@ export default function CompaniesPage() {
     const fetchCompanies = async () => {
       setLoading(true);
       try {
-        // When API is ready, replace this with fetch call
-        // const response = await fetch('api/companies', {
-        //   headers: {
-        //     "ngrok-skip-browser-warning": "69420"
-        //   }
-        // });
-        // if (!response.ok) throw new Error('Failed to fetch companies');
-        // const data = await response.json();
-        // setCompanies(data);
+        // Call the company list API
+        const response = await api.get('/api/v1/company/list', {
+          params: {
+            skip: 0,
+            limit: 10
+          }
+        });
         
-        // For now, use mock data
-        setTimeout(() => {
+        // Check if we have data
+        if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
+          // Process API data and fill in missing values with defaults
+          const processedData = response.data.map(company => ({
+            id: company?.id ?? Math.random().toString(36).substr(2, 9),
+            company_name: company?.company_name ?? 'Unnamed Company',
+            description: company?.description ?? 'No description available',
+            website: company?.website ?? null,
+            company_size: company?.company_size ?? 'Unknown',
+            founded_year: company?.founded_year ?? 'Unknown',
+            hiring_for: company?.hiring_for ?? [],
+            verification_status: company?.verification_status ?? false,
+            logo_url: company?.logo_url ?? null,
+            industries: company?.industries?.length ? company.industries : ['Technology']
+          }));
+          
+          setCompanies(processedData);
+        } else {
+          // Fallback to mock data if API returns invalid or empty data
+          console.warn('Invalid or empty data from API, using mock data instead');
           setCompanies(mockCompanies);
-          setLoading(false);
-        }, 800); // Simulate API delay
+        }
+        
+        setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
@@ -240,15 +258,19 @@ export default function CompaniesPage() {
                         
                         <CardContent className="pb-2">
                           <CardDescription className="line-clamp-3 mb-3">
-                            {company.description}
+                            {company?.description || 'No description available'}
                           </CardDescription>
                           
                           <div className="flex flex-wrap gap-1 mb-4">
-                            {company.industries && company.industries.map((industry, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {industry}
-                              </Badge>
-                            ))}
+                            {company?.industries?.length > 0 ? (
+                              company.industries.map((industry, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {industry}
+                                </Badge>
+                              ))
+                            ) : (
+                              <Badge variant="outline" className="text-xs">Technology</Badge>
+                            )}
                           </div>
                           
                           <div className="space-y-2">
@@ -256,15 +278,15 @@ export default function CompaniesPage() {
                               <FaUserTie className="mr-2 text-gray-500" />
                               <span className="text-gray-700 dark:text-gray-300 font-medium">Size:</span>
                               <span className="ml-2 text-gray-600 dark:text-gray-400">
-                                {company.company_size === 'small' ? 'Small (< 50 employees)' : 
-                                 company.company_size === 'medium' ? 'Medium (50-250 employees)' : 
-                                 'Large (250+ employees)'}
+                                {company?.company_size === 'small' ? 'Small (< 50 employees)' : 
+                                 company?.company_size === 'medium' ? 'Medium (50-250 employees)' : 
+                                 company?.company_size === 'large' ? 'Large (250+ employees)' : 'Unknown'}
                               </span>
                             </div>
                             <div className="flex items-center text-sm">
                               <FaCalendarAlt className="mr-2 text-gray-500" />
                               <span className="text-gray-700 dark:text-gray-300 font-medium">Founded:</span>
-                              <span className="ml-2 text-gray-600 dark:text-gray-400">{company.founded_year}</span>
+                              <span className="ml-2 text-gray-600 dark:text-gray-400">{company?.founded_year || 'Unknown'}</span>
                             </div>
                           </div>
                         </CardContent>
@@ -272,14 +294,25 @@ export default function CompaniesPage() {
                         <CardFooter className="pt-2">
                           <div className="w-full flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center">
                             <div>
-                              {company.hiring_for && (
+                              {company?.hiring_for?.length > 0 && (
                                 <div className="text-xs text-gray-600 dark:text-gray-400">
                                   <span className="font-medium">Hiring for:</span> {company.hiring_for.join(', ')}
                                 </div>
                               )}
                             </div>
                             <div className="flex gap-2">
-                              {company.website && (
+                              <div className="font-medium flex-grow">
+                                {company?.company_name || 'Unnamed Company'}
+                                {company?.verification_status && (
+                                  <span className="ml-2 text-xs text-blue-500">✓ Verified</span>
+                                )}
+                                {company?.match_score && (
+                                  <Badge variant="secondary" className="ml-3 text-xs">
+                                    {company.match_score}% Match
+                                  </Badge>
+                                )}
+                              </div>
+                              {company?.website && (
                                 <a 
                                   href={company.website} 
                                   target="_blank" 
@@ -289,9 +322,11 @@ export default function CompaniesPage() {
                                   Website <FaExternalLinkAlt className="ml-1" />
                                 </a>
                               )}
-                              <Button size="sm" variant="primary">
-                                View Details
-                              </Button>
+                              <Link href={`/company/dashboard/${company?.id}`}>
+                                <Button size="sm" variant="primary">
+                                  View Details
+                                </Button>
+                              </Link>
                             </div>
                           </div>
                         </CardFooter>

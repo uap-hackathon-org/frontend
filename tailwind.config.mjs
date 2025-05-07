@@ -74,6 +74,7 @@ export default {
   			'orange-20': 'var(--orange-20)',
   			'orange-light': 'var(--orange-light)',
   			'orange-100': 'var(--orange-100)',
+			'orange-dark': '#EC672B',
   			'orange-border-outline': 'var(--orange-border-outline)',
   			'orange-bg-outline': 'var(--orange-bg-outline)',
   			'orange-text-outline': 'var(--orange-text-outline)',

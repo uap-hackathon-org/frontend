@@ -38,6 +38,8 @@ const skillDistributionData = [
 ];
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE'];
+import api from '@/axiosInstance';
+
 
 export default function CompanyDashboard({ params }) {
   // Create a client component wrapper
@@ -64,16 +66,60 @@ function ClientCompanyDashboard({ params }) {
   
   // Second useEffect to fetch data after mounting
   useEffect(() => {
-    if (mounted) {
+    const fetchCompanyData = async () => {
+      setIsLoading(true);
       try {
-        const companyData = getMockCompanyById(id);
-        setCompany(companyData);
-        setIsLoading(false);
+        // Try to fetch from the real API first
+        const response = await api.get(`/api/v1/company/${id}`, {
+          headers: {
+            "ngrok-skip-browser-warning": "69420"
+          }
+        });
+        
+        if (response?.data) {
+          // Process data and add fallbacks for null values
+          const processedData = {
+            id: response.data?.id ?? id,
+            company_name: response.data?.company_name ?? 'Unnamed Company',
+            description: response.data?.description ?? 'No description available',
+            website: response.data?.website ?? null,
+            company_size: response.data?.company_size ?? 'Unknown',
+            founded_year: response.data?.founded_year ?? 'Unknown',
+            hiring_for: response.data?.hiring_for ?? [],
+            verification_status: response.data?.verification_status ?? false,
+            logo_url: response.data?.logo_url ?? null,
+            industries: response.data?.industries?.length ? response.data.industries : ['Technology']
+          };
+          setCompany(processedData);
+        } else {
+          // Fallback to mock data if API returns invalid response
+          console.warn('Invalid API response, falling back to mock data');
+          const mockData = getMockCompanyById(id);
+          setCompany(mockData);
+        }
       } catch (error) {
         console.error('Error loading company data:', error);
+        // Fallback to mock data on error
+        try {
+          const mockData = getMockCompanyById(id);
+          setCompany(mockData);
+          toast({
+            title: "Using Mock Data",
+            description: "Couldn't connect to the API. Using sample data instead.",
+            variant: "warning"
+          });
+        } catch (mockError) {
+          toast({
+            title: "Error",
+            description: "Failed to load company data.",
+            variant: "destructive"
+          });
+        }
+      } finally {
         setIsLoading(false);
       }
     }
+    fetchCompanyData();
   }, [id, mounted]);
   
   if (isLoading) {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/components/card';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
@@ -8,30 +8,30 @@ import { useLanguage } from '@/lib/language/LanguageContext';
 import { HiOfficeBuilding } from 'react-icons/hi';
 
 export default function ManageCompanies({ params }) {
-  // Unwrap params using React.use()
-  const unwrappedParams = use(params);
-  const { id } = unwrappedParams;
+  const { id } = params || {};
   
   const { toast } = useToast();
-  const { dictionary } = useLanguage();
-  const { t } = dictionary;
-  const [isClient, setIsClient] = useState(false);
+  const { t } = useLanguage()
+  
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // This ensures we're now on the client side
-    setIsClient(true);
+    setMounted(true);
   }, []);
   
-  // Only render the full content on the client side
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Loading companies...</p>
-        </div>
+  // Create a consistent loading component that matches on both server and client
+  const loadingComponent = (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="text-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+        <p className="text-lg text-gray-600 dark:text-gray-300">Loading companies...</p>
       </div>
-    );
+    </div>
+  );
+  
+  // Only animate after client-side hydration completes
+  if (!mounted) {
+    return loadingComponent;
   }
   
   return (

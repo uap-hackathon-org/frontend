@@ -358,7 +358,7 @@ export default function WorkshopDetailsPage({ params }) {
                                 <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{material.description}</p>
                                 {material.file_url && (
                                   <a 
-                                    href={material.file_url}
+                                    href={`${process.env.NEXT_PUBLIC_ENDPOINT}/${material.file_url}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 mt-2 text-sm"

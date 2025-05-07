@@ -650,7 +650,7 @@ export default function MicroTasksPage() {
                                             disabled={isExpired}
                                             size="sm"
                                           >
-                                            {isExpired ? 'Expired' : 'Start Quest'}
+                                            {isExpired ? 'Expired' : 'View Details'}
                                           </Button>
                                         </Link>
                                       </div>
@@ -734,7 +734,7 @@ export default function MicroTasksPage() {
                                     className="w-full mt-2 bg-orange-500 hover:bg-orange-600 text-white"
                                     disabled={isExpired}
                                   >
-                                    {isExpired ? 'Expired' : 'Start Quest'}
+                                    {isExpired ? 'Expired' : 'View Details'}
                                   </Button>
                                 </Link>
                               </div>

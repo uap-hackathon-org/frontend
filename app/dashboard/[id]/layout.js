@@ -3,10 +3,9 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useParams } from 'next/navigation'
 import { LuLayoutDashboard } from "react-icons/lu";
-import { CiTimer } from "react-icons/ci";
-import { TbChartHistogram } from "react-icons/tb";
 import { CgCompressLeft } from "react-icons/cg";
 import { FiLogOut } from "react-icons/fi";
+import { FaCertificate, FaTasks, FaTrophy, FaVideo, FaCalendarAlt, FaLaptopCode } from "react-icons/fa";
 import { Button } from '@/components/ui/components/button'
 import LinkItem from '@/components/ui/components/LinkItem'
 import Hero from '@/components/utils/Hero';
@@ -27,19 +26,29 @@ export default function RootLayout({ children }) {
       icon: <LuLayoutDashboard size={20} />,
     },
     {
-      title: "Thor Stake",
-      to: `/dashboard/${params.id}/thor-stake`,
-      icon: <CiTimer size={20} />,
+      title: "Running Tasks",
+      to: `/dashboard/${params.id}/running-tasks`,
+      icon: <FaTasks size={20} />,
     },
     {
-      title: "Pending Liquidity",
-      to: `/dashboard/${params.id}/pending-liquidity`,
-      icon: <CiTimer size={20} />,
+      title: "Leaderboard",
+      to: `/dashboard/${params.id}/leaderboard`,
+      icon: <FaTrophy size={20} />,
     },
     {
-      title: "Stats",
-      to: `/dashboard/${params.id}/stats`,
-      icon: <TbChartHistogram size={20} />,
+      title: "Certificates",
+      to: `/dashboard/${params.id}/certificates`,
+      icon: <FaCertificate size={20} />,
+    },
+    {
+      title: "Virtual Sessions",
+      to: `/dashboard/${params.id}/virtual-sessions`,
+      icon: <FaVideo size={20} />,
+    },
+    {
+      title: "Workshops Enrolled",
+      to: `/dashboard/${params.id}/workshops-enrolled`,
+      icon: <FaLaptopCode size={20} />,
     },
   ]
 
@@ -90,7 +99,7 @@ export default function RootLayout({ children }) {
               <div className="flex justify-center">
                 <Image 
                   src="/profile.png" 
-                  alt="Thor" 
+                  alt="User" 
                   width={40} 
                   height={40} 
                   className="rounded-full border-2 border-primary/20"
@@ -98,16 +107,24 @@ export default function RootLayout({ children }) {
               </div>
             ) : (
               <div className="flex items-center gap-3 p-2">
-                <Image 
-                  src="/profile.png" 
-                  alt="Thor" 
-                  width={48} 
-                  height={48} 
-                  className="rounded-full border-2 border-primary/20"
-                />
+                <div className="relative">
+                  <Image 
+                    src="/profile.png" 
+                    alt="User" 
+                    width={48} 
+                    height={48} 
+                    className="rounded-full border-2 border-primary/20"
+                  />
+                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">Thor</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Premium User</p>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Student User</h3>
+                  <div className="flex items-center gap-1">
+                    <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
+                      Level 2
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Developer</p>
+                  </div>
                 </div>
               </div>
             )}

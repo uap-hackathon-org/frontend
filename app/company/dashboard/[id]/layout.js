@@ -22,10 +22,12 @@ import {
   HiOutlineChatAlt,
   HiOutlineIdentification,
   HiOutlineClipboardCheck,
-  HiPuzzle
+  HiPuzzle,
+  HiCalendar
 } from 'react-icons/hi';
 import { 
-  TbCertificate 
+  TbCertificate,
+  TbCalendarEvent
 } from 'react-icons/tb';
 import { getMockCompanyById } from '@/lib/mock';
 
@@ -98,6 +100,11 @@ function ClientCompanyDashboardLayout({ children, params }) {
       name: t('companyVirtualSessions'),
       icon: <HiOutlineVideoCamera className="h-5 w-5" />,
       path: `/company/dashboard/${id}/virtual-sessions`,
+    },
+    {
+      name: t('workshopManagement'),
+      icon: <TbCalendarEvent className="h-5 w-5" />,
+      path: `/company/dashboard/${id}/workshops`,
     },
     {
       name: t('feedbackCertificates'),

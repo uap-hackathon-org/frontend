@@ -85,35 +85,63 @@ export default function WorkshopsPage() {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        // When API is ready, replace this with fetch call
-        // const response = await fetch('api/events', {
-        //   headers: {
-        //     "ngrok-skip-browser-warning": "69420"
-        //   }
-        // });
-        // if (!response.ok) throw new Error('Failed to fetch events');
-        // const data = await response.json();
-        // setEvents(data);
+        // Call the events API endpoint
+        const response = await api.get('/api/v1/events/', {
+          params: {
+            skip: 0,
+            limit: 20,
+            event_type: 'workshop',
+            is_active: true
+          }
+        });
         
-        // //axios call
-        // const response = await api.get('/api/events')
-        
-        // setEvents(response.data);
-        // setLoading(false);
-
-
-        // For now, use mock data
-        setTimeout(() => {
+        // Check if we have valid data
+        if (response?.data && Array.isArray(response.data)) {
+          // Process API data and add fallbacks for null values
+          const processedData = response.data.map(event => ({
+            id: event?.id ?? Math.random().toString(36).substr(2, 9),
+            title: event?.title ?? 'Unnamed Event',
+            description: event?.description ?? 'No description available',
+            event_type: event?.event_type ?? 'workshop',
+            start_date: event?.start_date ?? new Date().toISOString(),
+            end_date: event?.end_date ?? new Date().toISOString(),
+            registration_deadline: event?.registration_deadline ?? new Date().toISOString(),
+            location: event?.location ?? 'Online',
+            meeting_link: event?.meeting_link ?? '',
+            max_participants: event?.max_participants ?? 0,
+            max_team_size: event?.max_team_size ?? null,
+            is_active: event?.is_active ?? true,
+            prizes: event?.prizes ?? null,
+            organized_by_name: event?.organized_by?.company_name ?? 'Unknown Organizer',
+            organized_by_id: event?.organized_by?.id ?? 0,
+            tags: event?.required_skills?.map(skill => skill) ?? [],
+            materials: event?.materials ?? [],
+            participant_count: event?.participant_count ?? 0,
+            cover_image_url: event?.cover_image_url ?? null
+          }));
+          
+          setEvents(processedData);
+          console.log('Fetched events from API:', processedData);
+        } else {
+          // Fallback to mock data if API returns invalid data
+          console.warn('Invalid data format from API, using mock data instead');
           setEvents(mockEvents);
-          setLoading(false);
-        }, 800); // Simulate API delay
+        }
+        
+        setLoading(false);
       } catch (err) {
+        console.error('Error fetching events:', err);
         setError(err.message);
+        
+        // Fallback to mock data on error
+        console.warn('Error fetching from API, using mock data instead');
+        setEvents(mockEvents);
+        
         setLoading(false);
         toast({
           title: "Error",
-          description: "Failed to load workshops and hackathons data. Please try again later.",
-          variant: "destructive"
+          description: "Failed to load events data from API. Using sample data instead.",
+          variant: "warning"
         });
       }
     };
@@ -310,7 +338,7 @@ export default function WorkshopsPage() {
                             >
                               {isHackathon ? 'Hackathon' : 'Workshop'}
                             </Badge>
-                            <div className="absolute bottom-2 left-3 text-white font-medium">
+                            <div className="absolute bottom-2 left-3 dark:text-white text-black font-medium">
                               <div className="flex items-center text-sm">
                                 <FaCalendarAlt className="mr-2" />
                                 {isHackathon ? (
@@ -346,11 +374,17 @@ export default function WorkshopsPage() {
                             </CardDescription>
                             
                             <div className="flex flex-wrap gap-1 mb-4">
-                              {event.tags && event.tags.map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800">
-                                  {tag}
+                              {event.tags && event.tags.length > 0 ? (
+                                event.tags.map((tag, index) => (
+                                  <Badge key={index} variant="outline" className="text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800">
+                                    {tag}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <Badge variant="outline" className="text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800">
+                                  Workshop
                                 </Badge>
-                              ))}
+                              )}
                             </div>
                             
                             <div className="space-y-2">
@@ -372,11 +406,42 @@ export default function WorkshopsPage() {
                                   <div>
                                     <span className="text-gray-700 dark:text-gray-300 font-medium">Prizes:</span>
                                     <div className="ml-2 text-gray-600 dark:text-gray-400">
-                                      {Object.entries(JSON.parse(event.prizes)).map(([place, prize], index) => (
-                                        <div key={index}>
-                                          <span className="font-medium capitalize">{place}:</span> {prize}
-                                        </div>
-                                      ))}
+                                      {(() => {
+                                        if (!event.prizes) return <div>No prizes information available</div>;
+                                        
+                                        if (typeof event.prizes === 'string') {
+                                          // Try to parse as JSON if it looks like JSON
+                                          if (event.prizes.startsWith('{') || event.prizes.startsWith('[')) {
+                                            try {
+                                              const prizesObj = JSON.parse(event.prizes);
+                                              if (typeof prizesObj === 'object' && prizesObj !== null) {
+                                                return Object.entries(prizesObj).map(([place, prize], index) => (
+                                                  <div key={index}>
+                                                    <span className="font-medium capitalize">{place}:</span> {prize}
+                                                  </div>
+                                                ));
+                                              }
+                                            } catch (e) {
+                                              // If parsing fails, just display the string
+                                              console.warn('Failed to parse prizes JSON:', e);
+                                            }
+                                          }
+                                          // Display as regular string if not JSON or parsing failed
+                                          return <div>{event.prizes}</div>;
+                                        }
+                                        
+                                        // Handle case where prizes might be an object already
+                                        if (typeof event.prizes === 'object' && event.prizes !== null) {
+                                          return Object.entries(event.prizes).map(([place, prize], index) => (
+                                            <div key={index}>
+                                              <span className="font-medium capitalize">{place}:</span> {prize}
+                                            </div>
+                                          ));
+                                        }
+                                        
+                                        // Fallback for any other type
+                                        return <div>{String(event.prizes)}</div>;
+                                      })()}
                                     </div>
                                   </div>
                                 </div>
@@ -393,11 +458,13 @@ export default function WorkshopsPage() {
                               </span>
                             </div>
                             <div className="flex">
-                              <Button size="sm" variant="primary" className="bg-indigo-600 hover:bg-indigo-700">
-                                {new Date(event.registration_deadline) > new Date() 
-                                  ? 'Register Now' 
-                                  : 'View Details'}
-                              </Button>
+                              <Link href={`/workshops/${event.id}`}>
+                                <Button size="sm" variant="primary" className="bg-indigo-600 hover:bg-indigo-700">
+                                  {new Date(event.registration_deadline) > new Date() 
+                                    ? 'Register Now' 
+                                    : 'View Details'}
+                                </Button>
+                              </Link>
                             </div>
                           </CardFooter>
                         </Card>

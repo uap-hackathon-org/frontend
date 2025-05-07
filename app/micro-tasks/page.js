@@ -287,7 +287,7 @@ export default function MicroTasksPage() {
                   Complete skill-building quests to level up your abilities and climb the leaderboard
                 </p>
                 <div className="flex items-center space-x-4">
-                  <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
+                  <div className="dark:bg-white/20 bg-grey-1 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
                     <div className="text-2xl font-bold dark:text-white text-orange-dark" >{tasks.length}</div>
                     <div className="text-sm dark:text-white text-orange-dark">Available Tasks</div>
                   </div>
@@ -530,8 +530,8 @@ export default function MicroTasksPage() {
                               <span className="bg-white/20 p-2 rounded-lg mr-3">
                                 {getCategoryIcon(category)}
                               </span>
-                              <h3 className="text-xl font-bold text-white capitalize">{category}</h3>
-                              <Badge className="ml-3 bg-white/20 text-white hover:bg-white/30">
+                              <h3 className="text-xl font-bold dark:text-white text-black capitalize">{category}</h3>
+                              <Badge className="ml-3 bg-white/20 dark:text-white text-black hover:bg-white/30">
                                 {categoryTasks.length} {categoryTasks.length === 1 ? 'quest' : 'quests'}
                               </Badge>
                             </div>

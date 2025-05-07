@@ -579,7 +579,7 @@ export default function MicroTasksPage() {
                                             'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
                                           }`}>
                                             {getDifficultyIcon(task.difficulty)}
-                                            <span>{task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)}</span>
+                                            <span>{task?.difficulty?.charAt(0)?.toUpperCase() + task?.difficulty?.slice(1) || 'N/A'}</span>
                                           </div>
                                           
                                           <div className="flex items-center ml-2 text-gray-600 dark:text-gray-400">
@@ -595,31 +595,29 @@ export default function MicroTasksPage() {
                                       {/* Task Body */}
                                       <div className="p-4 pt-0 flex-1 flex flex-col">
                                         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
-                                          {task.description}
+                                          {task?.description}
                                         </p>
                                         
-                                        <div className="flex flex-wrap gap-1 mb-3">
-                                          {task.required_skills && task.required_skills.slice(0, 3).map((skill, index) => (
-                                            <span key={index} className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                        <div className="flex flex-wrap gap-1.5 mb-3">
+                                          {task?.skills?.map((skill, i) => (
+                                            <span 
+                                              key={i} 
+                                              className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-800/30 dark:text-blue-300 px-2 py-1 rounded"
+                                            >
                                               {skill}
                                             </span>
-                                          ))}
-                                          {task.required_skills && task.required_skills.length > 3 && (
-                                            <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                                              +{task.required_skills.length - 3}
-                                            </span>
-                                          )}
+                                          )) || <span className="text-xs text-gray-500">No skills listed</span>}
                                         </div>
                                         
                                         <div className="mt-auto space-y-2 text-xs">
                                           <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                             <div className="flex items-center">
                                               <FaRegClock className="mr-1" />
-                                              <span>{task.estimated_hours}h</span>
+                                              <span>{task?.estimated_hours}h</span>
                                             </div>
                                             <div className="flex items-center">
                                               <FaClipboardCheck className="mr-1" />
-                                              <span>{task.completed_count}/{task.max_submissions}</span>
+                                              <span>{task?.completed_count}/{task?.max_submissions}</span>
                                             </div>
                                           </div>
                                           
@@ -644,7 +642,7 @@ export default function MicroTasksPage() {
                                       </div>
                                       
                                       {/* Locked indicator */}
-                                      {task.prerequisites && task.prerequisites.length > 0 && (
+                                      {task?.prerequisites && task?.prerequisites.length > 0 && (
                                         <div className="absolute top-2 right-2">
                                           <TooltipProvider>
                                             <Tooltip>
@@ -688,37 +686,32 @@ export default function MicroTasksPage() {
                             className="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden"
                           >
                             <div className="p-3 bg-gradient-to-r from-orange-500 to-amber-500">
-                              <h4 className="font-bold text-white truncate">{task.title}</h4>
+                              <h4 className="font-bold text-white truncate">{task?.title}</h4>
                             </div>
                             
                             <div className="p-3">
                               <div className="flex justify-between mb-2">
-                                <Badge className={getDifficultyColor(task.difficulty)}>
-                                  {task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)}
+                                <Badge className={getDifficultyColor(task?.difficulty)}>
+                                  {task?.difficulty?.charAt(0)?.toUpperCase() + task?.difficulty?.slice(1) || 'N/A'}
                                 </Badge>
-                                <div className="font-bold text-orange-500">{task.points} pts</div>
+                                <div className="font-bold text-orange-500">{task?.points || 0} pts</div>
                               </div>
                               
                               <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                                {task.description}
+                                {task?.description || 'No description available'}
                               </p>
                               
                               <div className="flex flex-wrap gap-1 mb-2">
-                                {task.required_skills && task.required_skills.slice(0, 2).map((skill, index) => (
-                                  <span key={index} className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                {task?.skills?.map((skill, i) => (
+                                  <span key={i} className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-800/30 dark:text-blue-300 px-2 py-1 rounded">
                                     {skill}
                                   </span>
-                                ))}
-                                {task.required_skills && task.required_skills.length > 2 && (
-                                  <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                                    +{task.required_skills.length - 2}
-                                  </span>
-                                )}
+                                )) || <span className="text-xs text-gray-500">No skills listed</span>}
                               </div>
                               
                               <div className="text-xs text-gray-600 dark:text-gray-400">
                                 <div className="flex justify-between mb-1">
-                                  <div className="flex items-center"><FaRegClock className="mr-1" /> {task.estimated_hours}h</div>
+                                  <div className="flex items-center"><FaRegClock className="mr-1" /> {task?.estimated_hours}h</div>
                                   <div className="flex items-center"><FaCalendarAlt className="mr-1" /> {isExpired ? 'Expired' : `${daysRemaining}d left`}</div>
                                 </div>
                                 <Button 
@@ -753,7 +746,7 @@ export default function MicroTasksPage() {
                             <div className="flex flex-col sm:flex-row items-stretch">
                               <div className="w-full sm:w-64 bg-gradient-to-br from-orange-500 to-amber-500 p-4 flex items-center justify-between sm:justify-center">
                                 <div className="flex flex-col items-center">
-                                  <div className="text-3xl font-bold text-white">{task.points}</div>
+                                  <div className="text-3xl font-bold text-white">{task?.points}</div>
                                   <div className="text-xs text-orange-100">POINTS</div>
                                 </div>
                                 
@@ -766,30 +759,30 @@ export default function MicroTasksPage() {
                               
                               <div className="flex-1 p-4">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
-                                  <h4 className="font-bold text-gray-800 dark:text-gray-100">{task.title}</h4>
+                                  <h4 className="font-bold text-gray-800 dark:text-gray-100">{task?.title || 'Untitled Task'}</h4>
                                   <div className="flex items-center mt-1 sm:mt-0">
-                                    <Badge className={`${getDifficultyColor(task.difficulty)} mr-2`}>
-                                      {task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)}
+                                    <Badge className={`${getDifficultyColor(task?.difficulty)} mr-2`}>
+                                      {task?.difficulty?.charAt(0)?.toUpperCase() + task?.difficulty?.slice(1) || 'N/A'}
                                     </Badge>
                                     <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                      {task.category}
+                                      {task?.category || 'Uncategorized'}
                                     </Badge>
                                   </div>
                                 </div>
                                 
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-                                  {task.description}
+                                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                                  {task?.description || 'No description available'}
                                 </p>
                                 
-                                <div className="flex flex-wrap justify-between items-center">
+                                <div className="flex justify-between items-center">
                                   <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
                                     <div className="flex items-center mr-3">
                                       <FaRegClock className="mr-1" />
-                                      <span>{task.estimated_hours} hours</span>
+                                      <span>{task?.estimated_hours} hours</span>
                                     </div>
                                     <div className="flex items-center mr-3">
                                       <FaClipboardCheck className="mr-1" />
-                                      <span>{task.completed_count}/{task.max_submissions}</span>
+                                      <span>{task?.completed_count}/{task?.max_submissions}</span>
                                     </div>
                                     <div className="hidden sm:flex items-center">
                                       <FaCalendarAlt className="mr-1" />

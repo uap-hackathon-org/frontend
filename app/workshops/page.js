@@ -31,6 +31,7 @@ export default function WorkshopsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [eventType, setEventType] = useState('all'); // 'all', 'workshop', 'hackathon'
   const [tagFilter, setTagFilter] = useState('all');
+  const [selectedTags, setSelectedTags] = useState([]);
   
   // Get unique tags for filter
   const allTags = events.flatMap(event => event.tags || []);
@@ -61,6 +62,13 @@ export default function WorkshopsPage() {
     if (tagFilter && tagFilter !== 'all') {
       filtered = filtered.filter(event => 
         event.tags && event.tags.includes(tagFilter)
+      );
+    }
+
+    // jamal
+    if (tagFilter && tagFilter !== 'all' && selectedTags.length > 0) {
+      filtered = filtered.filter(event =>
+        event.tags && selectedTags.some(selectedTag => event.tags.includes(selectedTag))
       );
     }
     
@@ -202,7 +210,10 @@ export default function WorkshopsPage() {
                   key={tag} 
                   variant={tagFilter === tag ? 'primary' : 'outline'}
                   className={`cursor-pointer ${tagFilter === tag ? 'bg-indigo-600' : 'hover:bg-indigo-100 dark:hover:bg-indigo-900/20'}`}
-                  onClick={() => setTagFilter(tag)}
+                  onClick={() => {
+                    setTagFilter(tag)
+                    setSelectedTags([...selectedTags, tag])
+                  }}
                 >
                   {tag}
                 </Badge>
@@ -231,6 +242,18 @@ export default function WorkshopsPage() {
                   Showing {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
                   {eventType !== 'all' && <span> of type <Badge className="ml-1 capitalize bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400">{eventType}</Badge></span>}
                   {tagFilter && tagFilter !== 'all' && <span> with tag <Badge className="ml-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400">{tagFilter}</Badge></span>}
+
+                  {/*Jamal*/}
+                  {tagFilter && tagFilter !== 'all' && selectedTags.length>0 && (
+                    <span>
+                      with tags {selectedTags.map((tag, index) => (
+                        <Badge key={tag} className="ml-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400">
+                          {tag}
+                          {index < selectedTags.length-1 && <span className="mx-1">,</span>}
+                        </Badge>
+                      ))}
+                    </span>
+                  )}
                 </div>
                 {(eventType !== 'all' || tagFilter || searchTerm) && (
                   <Button 

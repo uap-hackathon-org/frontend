@@ -21,7 +21,7 @@ const ProfileCard = () => {
         const fetchStudentProfile = async () => {
             setLoading(true);
             try {
-                const response = await api.get('/api/v1/user/student-profile');
+                const response = await api.get('/user/student-profile');
                 
                 if (response?.data) {
                     setProfileInfo({
@@ -73,7 +73,7 @@ const ProfileCard = () => {
     const handleSaveClick = async (section) => {
         if (section) {
             try {
-                const response = await api.put('/api/v1/user/student-profile', {
+                const response = await api.put('/user/student-profile', {
                     name: basicFormData.name,
                     phone: basicFormData.phone,
                     place: basicFormData.place

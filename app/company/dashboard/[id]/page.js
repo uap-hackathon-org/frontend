@@ -70,7 +70,7 @@ function ClientCompanyDashboard({ params }) {
       setIsLoading(true);
       try {
         // Try to fetch from the real API first
-        const response = await api.get(`/api/v1/company/${id}`, {
+        const response = await api.get(`/company/${id}`, {
           headers: {
             "ngrok-skip-browser-warning": "69420"
           }

@@ -109,35 +109,47 @@ export default function MicroTasksPage() {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        // When API is ready, replace this with fetch call
-        // const response = await fetch('api/micro-tasks', {
-        //   headers: {
-        //     "ngrok-skip-browser-warning": "69420"
-        //   }
-        // });
-        // if (!response.ok) throw new Error('Failed to fetch micro tasks');
-        // const data = await response.json();
-        // setTasks(data);
-
-        // // axios call
-        // const response = await api.get('/api/micro-tasks');
+        // Call the API endpoint to fetch microtasks
+        const response = await api.get('/microtasks/?skip=0&limit=20&is_active=true');
         
-        // setTasks(response.data);
-        // setLoading(false);
-        
-        // For now, use mock data
-        setTimeout(() => {
+        if (response?.data && Array.isArray(response.data)) {
+          // Process API data with fallbacks for null values
+          const processedData = response.data.map(task => ({
+            id: task.id,
+            title: task.title || 'Unnamed Task',
+            description: task.description || 'No description available',
+            difficulty: task.difficulty || 'beginner',
+            points: task.points || 0,
+            deadline: task.deadline || null,
+            is_active: task.is_active ?? true,
+            max_submissions: task.max_submissions || 0,
+            category: task.category || 'General',
+            created_by: task.created_by || { id: 0, company_name: 'Unknown Company' },
+            created_by_name: task.created_by?.company_name || 'Unknown Company',
+            creation_date: task.creation_date || new Date().toISOString(),
+            required_skills: task.required_skills || [],
+            attachments: task.attachments || [],
+            completion_count: task.completion_count || 0,
+            estimated_hours: 2, // Default value since it's not in the API response
+            completed_count: task.completion_count || 0,
+            skills: task.required_skills?.map(skill => skill.name || skill) || []
+          }));
+          
+          setTasks(processedData);
+          console.log('Fetched microtasks from API:', processedData);
+        } else {
+          console.warn('Invalid data format from API, using mock data instead');
+          // Fallback to mock data if API returns invalid data
           setTasks(mockTasks);
-          setLoading(false);
-        }, 800); // Simulate API delay
+        }
       } catch (err) {
-        setError(err.message);
+        console.error('Error fetching microtasks:', err);
+        setError('Failed to load microtasks. Please try again later.');
+        
+        // Fallback to mock data if API call fails
+        setTasks(mockTasks);
+      } finally {
         setLoading(false);
-        toast({
-          title: "Error",
-          description: "Failed to load micro-tasks data. Please try again later.",
-          variant: "destructive"
-        });
       }
     };
     

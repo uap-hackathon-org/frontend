@@ -60,7 +60,7 @@ function ClientPostTask({ params }) {
     // Fetch skills from the API
     const fetchSkills = async () => {
       try {
-        const response = await api.get('/api/v1/skills/');
+        const response = await api.get('/skills/');
         
         if (response?.data && Array.isArray(response.data)) {
           setSkills(response.data);

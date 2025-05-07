@@ -30,7 +30,7 @@ export function emailSend(receiver_email, name, message, templateId) {
         }
     };
 
-    fetch(`https://api.emailjs.com/api/v1.0/email/send`, {
+    fetch(`https://api.emailjs.com.0/email/send`, {
         method: 'POST',
         headers : { 'Content-Type': 'application/json' },
         body : JSON.stringify(data)

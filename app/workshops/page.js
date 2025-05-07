@@ -86,7 +86,7 @@ export default function WorkshopsPage() {
       setLoading(true);
       try {
         // Call the events API endpoint
-        const response = await api.get('/api/v1/events/', {
+        const response = await api.get('/events/', {
           params: {
             skip: 0,
             limit: 20,

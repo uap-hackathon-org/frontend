@@ -77,7 +77,7 @@ export default function CompaniesPage() {
       setLoading(true);
       try {
         // Call the company list API
-        const response = await api.get('/api/v1/company/list', {
+        const response = await api.get('/company/list', {
           params: {
             skip: 0,
             limit: 10

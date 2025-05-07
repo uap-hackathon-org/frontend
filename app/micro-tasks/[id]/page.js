@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/language/LanguageContext';
@@ -63,7 +63,7 @@ function ClientMicroTaskDetails({ params }) {
       setLoading(true);
       try {
         // Call the microtasks API endpoint with the specific ID
-        const response = await api.get(`/api/v1/microtasks/${unwrappedParams.id}`);
+        const response = await api.get(`/microtasks/${unwrappedParams.id}`);
         
         // Check if we have valid data
         if (response?.data) {
@@ -120,13 +120,103 @@ function ClientMicroTaskDetails({ params }) {
     fetchMicroTaskDetails();
   }, [unwrappedParams, toast]);
 
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [solutionLink, setSolutionLink] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Handle file selection
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  // Handle solution link input
+  const handleLinkChange = (e) => {
+    setSolutionLink(e.target.value);
+  };
+
+  // Handle file browse button click
+  const handleBrowseClick = () => {
+    fileInputRef.current.click();
+  };
+
+  // Handle drag and drop
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
   // Handle task submission
-  const handleSubmitTask = () => {
-    toast({
-      title: "Task Submission",
-      description: "Your submission has been received. We'll review it shortly.",
-      variant: "default"
-    });
+  const handleSubmitTask = async () => {
+    if (!selectedFile && !solutionLink) {
+      toast({
+        title: "Submission Error",
+        description: "Please upload a file or provide a solution link.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    
+    try {
+      // Create FormData object for file upload
+      const formData = new FormData();
+      
+      if (selectedFile) {
+        formData.append('file', selectedFile);
+      }
+      
+      if (solutionLink) {
+        formData.append('solution_link', solutionLink);
+      }
+      
+      // Make API call to submit the task
+      const response = await api.put(
+        `/microtasks/${unwrappedParams.id}/submit`, 
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
+      );
+      
+      if (response?.data) {
+        console.log('Task submission successful:', response.data);
+        setSubmitSuccess(true);
+        toast({
+          title: "Submission Successful",
+          description: "Your solution has been submitted successfully. We'll review it shortly.",
+          variant: "default"
+        });
+        
+        // Reset form
+        setSelectedFile(null);
+        setSolutionLink('');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err) {
+      console.error('Error submitting task:', err);
+      toast({
+        title: "Submission Failed",
+        description: err.response?.data?.detail || "Failed to submit your solution. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Loading state
@@ -331,31 +421,111 @@ function ClientMicroTaskDetails({ params }) {
                         <h3 className="text-lg font-semibold mb-4">Submit Your Solution</h3>
                         <p className="mb-4">Upload your solution files or provide a link to your work.</p>
                         
-                        <div className="space-y-4">
-                          <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center">
-                            <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
-                            <p className="mt-2">Drag and drop your files here, or click to browse</p>
-                            <Button variant="outline" className="mt-4">Browse Files</Button>
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium mb-2">Or provide a link to your solution</label>
-                            <div className="flex">
-                              <input 
-                                type="text" 
-                                placeholder="https://github.com/yourusername/repo"
-                                className="flex-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
-                              />
-                              <Button className="rounded-l-none">Add Link</Button>
+                        {submitSuccess ? (
+                          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6 text-center">
+                            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 dark:bg-green-800 rounded-full mb-4">
+                              <FaClipboardCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
-                          </div>
-                          
-                          <div className="pt-4 border-t">
-                            <Button onClick={handleSubmitTask} className="w-full bg-indigo-600 hover:bg-indigo-700">
-                              Submit Solution
+                            <h4 className="text-lg font-semibold mb-2 text-green-800 dark:text-green-400">Solution Submitted Successfully!</h4>
+                            <p className="text-green-700 dark:text-green-300 mb-4">Your solution has been received and will be reviewed shortly.</p>
+                            <Button
+                              variant="outline"
+                              className="border-green-500 text-green-600 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900/30"
+                              onClick={() => setSubmitSuccess(false)}
+                            >
+                              Submit Another Solution
                             </Button>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {/* File upload area */}
+                            <div 
+                              className={`border-2 border-dashed ${selectedFile ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-gray-700'} rounded-lg p-8 text-center`}
+                              onDragOver={handleDragOver}
+                              onDrop={handleDrop}
+                              onClick={handleBrowseClick}
+                            >
+                              {selectedFile ? (
+                                <div>
+                                  <div className="flex items-center justify-center w-12 h-12 mx-auto bg-indigo-100 dark:bg-indigo-800 rounded-full mb-2">
+                                    <FaFileAlt className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                                  </div>
+                                  <p className="font-medium text-indigo-700 dark:text-indigo-300">{selectedFile.name}</p>
+                                  <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-1">{(selectedFile.size / 1024).toFixed(2)} KB</p>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    className="mt-2 text-xs"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedFile(null);
+                                    }}
+                                  >
+                                    Remove File
+                                  </Button>
+                                </div>
+                              ) : (
+                                <>
+                                  <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
+                                  <p className="mt-2">Drag and drop your files here, or click to browse</p>
+                                  <Button 
+                                    variant="outline" 
+                                    className="mt-4"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleBrowseClick();
+                                    }}
+                                  >
+                                    Browse Files
+                                  </Button>
+                                </>  
+                              )}
+                              <input 
+                                type="file" 
+                                className="hidden" 
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                              />
+                            </div>
+                            
+                            {/* Solution link input */}
+                            <div>
+                              <label className="block text-sm font-medium mb-2">Or provide a link to your solution</label>
+                              <div className="flex">
+                                <input 
+                                  type="text" 
+                                  placeholder="https://github.com/yourusername/repo"
+                                  className="flex-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                                  value={solutionLink}
+                                  onChange={handleLinkChange}
+                                />
+                                <Button 
+                                  className="rounded-l-none"
+                                  onClick={() => setSolutionLink('')}
+                                  disabled={!solutionLink}
+                                >
+                                  Clear
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            {/* Submit button */}
+                            <div className="pt-4 border-t">
+                              <Button 
+                                onClick={handleSubmitTask} 
+                                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                disabled={submitting || (!selectedFile && !solutionLink)}
+                              >
+                                {submitting ? (
+                                  <>
+                                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                                    Submitting...
+                                  </>
+                                ) : 'Submit Solution'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-center py-8">

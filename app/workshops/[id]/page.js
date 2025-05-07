@@ -50,7 +50,7 @@ export default function WorkshopDetailsPage({ params }) {
       setLoading(true);
       try {
         // Call the events API endpoint with the specific ID
-        const response = await api.get(`/api/v1/events/${unwrappedParams.id}`);
+        const response = await api.get(`/events/${unwrappedParams.id}`);
         
         // Check if we have valid data
         if (response?.data) {

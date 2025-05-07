@@ -22,56 +22,93 @@ export function LoginModal() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+    const [isOpen, setIsOpen] = useState(false)
     const router = useRouter()
     const { toast } = useToast()
+    
+    // Function to open modal
+    const openModal = () => setIsOpen(true)
+    
+    // Function to close modal
+    const closeModal = () => setIsOpen(false)
 
     async function loginHandler() {
-        setLoading(true)
-        console.log("whats Wrong!")
-        const url = `${process.env.NEXT_PUBLIC_ENDPOINT}/auth/signin`
-        const data = {
-            email,
-            password
-        }
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                "ngrok-skip-browser-warning": "69420"
-            },
-            body: JSON.stringify(data)
-        })
-        const ans = await response.json()
-        const id = ans?.user_id
-        console.log(ans)
-        if(id !=null) {
-            console.log(id)
-
-            localStorage.setItem('token', JSON.stringify(ans))
-            // push_messaging_token();
-            if(ans.user_role == "USER") {
-              console.log("User")
-              setTimeout(() => {
-                router.push('/dashboard/' + id)
-              }, 500)
+        try {
+            setLoading(true)
+            const url = `${process.env.NEXT_PUBLIC_ENDPOINT}/auth/signin`
+            const data = {
+                email,
+                password
             }
-            else {
-                router.push(`/admin/dashboard`)
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "ngrok-skip-browser-warning": "69420"
+                },
+                body: JSON.stringify(data)
+            })
+            
+            const ans = await response.json()
+            console.log('Login response:', ans)
+            
+            const id = ans?.user_id
+            
+            if (id != null) {
+                // Store the token first
+                localStorage.setItem('token', JSON.stringify(ans))
+                
+                // Close the modal first before any navigation
+                closeModal()
+                
+                // Determine which dashboard to navigate to based on user role
+                if (ans.user_role === "student") {
+                    console.log("Redirecting to student dashboard")
+                    setTimeout(() => {
+                        router.push(`/dashboard/${id}`)
+                    }, 500)
+                } else if (ans.user_role === "company") {
+                    console.log("Redirecting to company dashboard")
+                    router.push(`/company/dashboard/${id}`)
+                } else {
+                    console.log("Redirecting to admin dashboard")
+                    router.push(`/admin/dashboard/${id}`)
+                }
+                
+                // Show success toast
+                toast({
+                    title: "Login Successful",
+                    description: "Welcome back!"
+                })
+            } else if (ans.detail === "error") {
+                toast({
+                    title: "Invalid Credentials",
+                    description: "Please Re-Enter Your Email and Password",
+                    variant: "destructive"
+                })
+            } else {
+                // Handle any other unexpected responses
+                toast({
+                    title: "Login Failed",
+                    description: "There was an issue with your login. Please try again.",
+                    variant: "destructive"
+                })
             }
-            router.push('/')
-
+        } catch (error) {
+            console.error("Login error:", error)
+            toast({
+                title: "Login Error",
+                description: "There was a problem connecting to the server. Please try again later.",
+                variant: "destructive"
+            })
+        } finally {
+            setLoading(false)
         }
-        if(ans.detail == "error") {
-        toast({
-            title: "Invalid Credentials",
-            description : `Please Re-Enter Your Email and Password`
-        })
-      }
-      setLoading(false)
     }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="text" className="text-text-primary font-bold">Sign In</Button>
       </DialogTrigger>
@@ -128,8 +165,22 @@ export function LoginModal() {
             center
             variant="primary" 
             onClick={loginHandler}
+            disabled={loading}
+            className="relative"
           >
-            Sign In
+            {loading ? (
+              <>
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </span>
+                <span className="opacity-0">Sign In</span>
+              </>
+            ) : (
+              'Sign In'
+            )}
           </Button>
 
           <p className="my-4 text-sm text-gray-600 dark:text-gray-400">

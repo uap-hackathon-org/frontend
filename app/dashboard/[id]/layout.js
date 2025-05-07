@@ -186,7 +186,7 @@ export default function RootLayout({ children }) {
         </motion.aside>
 
         {/* Main Content */}
-        <main className="flex-1 bg-gray-50 dark:bg-menu-secondary overflow-auto p-6">
+        <main className="flex-1 bg-gray-50 dark:bg-menu-secondary overflow-auto">
           {children}
         </main>
       </div>

@@ -62,7 +62,7 @@ export default function Dashboard() {
   ]
   
   return (
-    <div className={`${playfair.className}`}>
+    <div className={`${playfair.className} dark:bg-menu-bg p-6`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -73,7 +73,7 @@ export default function Dashboard() {
           <h1 className={`${poppins.className} text-2xl font-bold text-gray-900 dark:text-white mb-2`}>
             Welcome back, Student!
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-600 dark:text-white">
             Your personalized career development journey awaits. Here's what's happening with your progress.
           </p>
         </div>

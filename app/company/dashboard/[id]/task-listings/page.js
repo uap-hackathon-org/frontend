@@ -276,12 +276,6 @@ function ClientTaskListings({ params }) {
                     <SelectItem value="advanced">{t('Advanced')}</SelectItem>
                   </SelectContent>
                 </Select>
-                
-                <Button variant="outline" asChild>
-                  <a href={`/company/dashboard/${companyId}/post-task`}>
-                    {t('Create Task')}
-                  </a>
-                </Button>
               </div>
             </div>
           </div>

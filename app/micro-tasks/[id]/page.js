@@ -614,13 +614,13 @@ function ClientMicroTaskDetails({ params }) {
                             {microTask.attachments.map((attachment, index) => (
                               <a
                                 key={index}
-                                href={attachment.url}
+                                href={`${process.env.NEXT_PUBLIC_ENDPOINT}/${attachment.file_url}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
                               >
                                 <FaFileAlt className="mr-2 text-indigo-600" />
-                                {attachment.name || `Attachment ${index + 1}`}
+                                {attachment.description || `Attachment ${index + 1}`}
                               </a>
                             ))}
                           </div>

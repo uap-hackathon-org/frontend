@@ -95,7 +95,6 @@ export default function Hero({ landing = true }) {
             </>
           ) : (
             <div className='flex items-center space-x-5'>
-              <Notification />
               <DropdownMenu>
                 <DropdownMenuTrigger className='focus:outline-none outline-none border-none'>
                   <div className='flex items-center space-x-2 p-2 transition-colors duration-200'>

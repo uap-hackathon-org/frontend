@@ -16,7 +16,7 @@ export default function RunningTasksPage() {
   const { toast } = useToast()
   
   return (
-    <div className={`${playfair.className}`}>
+    <div className={`${playfair.className} p-6`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

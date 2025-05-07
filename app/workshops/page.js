@@ -87,17 +87,18 @@ export default function WorkshopsPage() {
         // const data = await response.json();
         // setEvents(data);
         
-        const response = await api.get('/api/events')
+        // //axios call
+        // const response = await api.get('/api/events')
         
-        setEvents(response.data);
-        setLoading(false);
+        // setEvents(response.data);
+        // setLoading(false);
 
 
-        // // For now, use mock data
-        // setTimeout(() => {
-        //   setEvents(mockEvents);
-        //   setLoading(false);
-        // }, 800); // Simulate API delay
+        // For now, use mock data
+        setTimeout(() => {
+          setEvents(mockEvents);
+          setLoading(false);
+        }, 800); // Simulate API delay
       } catch (err) {
         setError(err.message);
         setLoading(false);

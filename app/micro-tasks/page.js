@@ -115,16 +115,17 @@ export default function MicroTasksPage() {
         // const data = await response.json();
         // setTasks(data);
 
-        const response = await api.get('/api/micro-tasks');
+        // // axios call
+        // const response = await api.get('/api/micro-tasks');
         
-        setTasks(response.data);
-        setLoading(false);
+        // setTasks(response.data);
+        // setLoading(false);
         
-        // // For now, use mock data
-        // setTimeout(() => {
-        //   setTasks(mockTasks);
-        //   setLoading(false);
-        // }, 800); // Simulate API delay
+        // For now, use mock data
+        setTimeout(() => {
+          setTasks(mockTasks);
+          setLoading(false);
+        }, 800); // Simulate API delay
       } catch (err) {
         setError(err.message);
         setLoading(false);

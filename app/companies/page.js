@@ -86,16 +86,18 @@ export default function CompaniesPage() {
         // const data = await response.json();
         // setCompanies(data);
         
-        const response = await api.get('/api/companies')
 
-        setCompanies(response.data);
-        setLoading(false);
+        // // axios call
+        // const response = await api.get('/api/companies')
+
+        // setCompanies(response.data);
+        // setLoading(false);
         
-        // // For now, use mock data
-        // setTimeout(() => {
-        //   setCompanies(mockCompanies);
-        //   setLoading(false);
-        // }, 800); // Simulate API delay
+        // For now, use mock data
+        setTimeout(() => {
+          setCompanies(mockCompanies);
+          setLoading(false);
+        }, 800); // Simulate API delay
       } catch (err) {
         setError(err.message);
         setLoading(false);

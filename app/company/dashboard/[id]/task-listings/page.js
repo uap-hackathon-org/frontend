@@ -19,7 +19,7 @@ function ClientTaskListings({ params }) {
   const { id } = unwrappedParams || {};
   
   const { toast } = useToast();
-    const { t } = useLanguage()
+  const { t } = useLanguage()
   
   const [mounted, setMounted] = useState(false);
 

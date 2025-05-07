@@ -35,7 +35,13 @@ export default function Hero({ landing = true }) {
     if(!token) {
       return
     }
-    // token = JSON.parse(token)
+    try {
+      // Parse the token if it's in JSON format
+      token = JSON.parse(token)
+    } catch (error) {
+      // If token is not JSON, keep it as is
+      console.log('Token is not in JSON format')
+    }
     
     setToken(token)
   }, [])
@@ -65,6 +71,35 @@ export default function Hero({ landing = true }) {
   function TokenCheckHandler(url) {
     let token = localStorage.getItem("token")
     router.push(url)
+  }
+
+  function navigateToDashboard() {
+    let storedToken = localStorage.getItem("token")
+    if (!storedToken) {
+      router.push('/')
+      return
+    }
+    
+    try {
+      // Try to parse the token as JSON
+      const tokenData = JSON.parse(storedToken)
+      const userRole = tokenData.user_role
+      const userId = tokenData.user_id
+      
+      if (userRole === 'student') {
+        router.push(`/dashboard/${userId}`)
+      } else if (userRole === 'company') {
+        router.push(`/company/dashboard/${userId}`)
+      } else if (userRole === 'admin') {
+        router.push(`/admin/dashboard/${userId}`)
+      } else {
+        // Default fallback
+        router.push('/')
+      }
+    } catch (error) {
+      console.error('Error parsing token or navigating to dashboard:', error)
+      router.push('/')
+    }
   }
   return (
     <>
@@ -114,12 +149,12 @@ export default function Hero({ landing = true }) {
                   
                   <div className='py-2'>
                     <DropdownMenuItem className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors duration-200'>
-                      <Link href={`/`} className='flex items-center space-x-2 text-gray-700 dark:text-gray-200'>
+                      <div onClick={navigateToDashboard} className='flex items-center space-x-2 text-gray-700 dark:text-gray-200 cursor-pointer'>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                         <span>{t('dashboard')}</span>
-                      </Link>
+                      </div>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors duration-200'>

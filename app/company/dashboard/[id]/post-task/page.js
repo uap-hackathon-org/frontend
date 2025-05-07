@@ -23,6 +23,7 @@ import { BsPencil, BsTextParagraph } from 'react-icons/bs';
 import { IoMdSwitch } from 'react-icons/io';
 import { FaSkiing } from 'react-icons/fa';
 import { Button } from '@/components/ui/components/button';
+import api from '@/axiosInstance';
 
 export default function PostTask({ params }) {
   // Create a client component wrapper
@@ -55,8 +56,28 @@ function ClientPostTask({ params }) {
 
   useEffect(() => {
     setMounted(true);
-    // Get skills data from mock or API
-    setSkills(getMockSkills());
+    
+    // Fetch skills from the API
+    const fetchSkills = async () => {
+      try {
+        const response = await api.get('/api/v1/skills/');
+        
+        if (response?.data && Array.isArray(response.data)) {
+          setSkills(response.data);
+          console.log('Fetched skills from API:', response.data);
+        } else {
+          console.warn('Invalid skills data format from API, falling back to mock data');
+          // Fallback to mock data if API returns invalid data
+          setSkills(getMockSkills());
+        }
+      } catch (err) {
+        console.error('Error fetching skills:', err);
+        // Fallback to mock data if API call fails
+        setSkills(getMockSkills());
+      }
+    };
+    
+    fetchSkills();
   }, []);
   
   const handleInputChange = (e) => {

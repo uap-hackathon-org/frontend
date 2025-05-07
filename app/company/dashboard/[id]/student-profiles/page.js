@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useRef } from 'react';
 import { Card } from '@/components/ui/components/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/components/tabs';
 import { Input } from '@/components/ui/components/input';
@@ -10,7 +10,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/components/select';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import Lottie from 'lottie-react';
 import { useLanguage } from '@/lib/language/LanguageContext';
+
+// Lottie animations
+import badgeLevel1 from '@/public/lottie-animations/badge-level1.json';
+import badgeLevel2 from '@/public/lottie-animations/badge-level2.json';
+import badgeLevel3 from '@/public/lottie-animations/badge-level3.json';
 
 // Icons
 import { HiUsers, HiSearch, HiOutlineAcademicCap, HiStar, HiOutlineBookOpen, HiTag, HiGlobe, HiFilter } from 'react-icons/hi';
@@ -350,10 +356,24 @@ function StudentCard({ student, rank, getBadgeColor }) {
     >
       <Card className="p-10 hover:shadow-md transition-shadow duration-300 overflow-hidden border-l-4 relative" 
            style={{ borderLeftColor: rank <= 3 ? '#F59E0B' : '#64748B' }}>
-        {/* Rank indicator */}
+        {/* Rank indicator with Lottie animations for top 3 */}
         <div className="absolute top-2 right-2 flex items-center">
           <div className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5">
-            {rank <= 3 ? <HiTrophy className="text-amber-500" /> : <HiStar className="text-slate-400" />}
+            {rank === 1 ? (
+              <div className="w-6 h-6 mr-1">
+                <Lottie animationData={badgeLevel3} loop={true} />
+              </div>
+            ) : rank === 2 ? (
+              <div className="w-6 h-6 mr-1">
+                <Lottie animationData={badgeLevel2} loop={true} />
+              </div>
+            ) : rank === 3 ? (
+              <div className="w-6 h-6 mr-1">
+                <Lottie animationData={badgeLevel1} loop={true} />
+              </div>
+            ) : (
+              <HiStar className="text-slate-400" />
+            )}
             #{rank}
           </div>
         </div>
@@ -361,14 +381,27 @@ function StudentCard({ student, rank, getBadgeColor }) {
         <div className="flex items-start gap-4">
           {/* Avatar */}
           <div className="relative">
-            <Avatar className="h-16 w-16 border-2 shadow-sm" style={{ borderColor: rank <= 3 ? '#F59E0B' : '#E2E8F0' }}>
-              <AvatarImage src={student.avatar} />
-              <AvatarFallback className="bg-amber-100 text-amber-800">
-                {getInitials(student.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-900">
-              {student.level}
+            <div className="relative">
+              <Avatar className="h-16 w-16 border-2 shadow-sm" style={{ borderColor: rank <= 3 ? '#F59E0B' : '#E2E8F0' }}>
+                <AvatarImage src={student.avatar} />
+                <AvatarFallback className="bg-amber-100 text-amber-800">
+                  {getInitials(student.name)}
+                </AvatarFallback>
+              </Avatar>
+              
+              {/* Lottie animation badge overlay for top 3 */}
+              {rank <= 3 && (
+                <div className="absolute -top-3 -left-3 w-12 h-12">
+                  <Lottie 
+                    animationData={rank === 1 ? badgeLevel3 : rank === 2 ? badgeLevel2 : badgeLevel1} 
+                    loop={true} 
+                  />
+                </div>
+              )}
+              
+              <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-900">
+                {student.level}
+              </div>
             </div>
           </div>
           

@@ -632,13 +632,15 @@ export default function MicroTasksPage() {
                                       
                                       {/* Task Footer */}
                                       <div className="p-3 border-t border-gray-100 dark:border-gray-700 mt-auto">
-                                        <Button 
-                                          className={`w-full justify-center ${isExpired ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}
-                                          disabled={isExpired}
-                                          size="sm"
-                                        >
-                                          {isExpired ? 'Expired' : 'Start Quest'}
-                                        </Button>
+                                        <Link href={`/micro-tasks/${task.id}`} className="w-full">
+                                          <Button 
+                                            className={`w-full justify-center ${isExpired ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}
+                                            disabled={isExpired}
+                                            size="sm"
+                                          >
+                                            {isExpired ? 'Expired' : 'Start Quest'}
+                                          </Button>
+                                        </Link>
                                       </div>
                                       
                                       {/* Locked indicator */}
@@ -714,13 +716,15 @@ export default function MicroTasksPage() {
                                   <div className="flex items-center"><FaRegClock className="mr-1" /> {task?.estimated_hours}h</div>
                                   <div className="flex items-center"><FaCalendarAlt className="mr-1" /> {isExpired ? 'Expired' : `${daysRemaining}d left`}</div>
                                 </div>
-                                <Button 
-                                  size="sm" 
-                                  className="w-full mt-2 bg-orange-500 hover:bg-orange-600 text-white"
-                                  disabled={isExpired}
-                                >
-                                  {isExpired ? 'Expired' : 'Start Quest'}
-                                </Button>
+                                <Link href={`/micro-tasks/${task.id}`} className="w-full">
+                                  <Button 
+                                    size="sm" 
+                                    className="w-full mt-2 bg-orange-500 hover:bg-orange-600 text-white"
+                                    disabled={isExpired}
+                                  >
+                                    {isExpired ? 'Expired' : 'Start Quest'}
+                                  </Button>
+                                </Link>
                               </div>
                             </div>
                           </motion.div>
@@ -791,7 +795,7 @@ export default function MicroTasksPage() {
                                       </span>
                                     </div>
                                   </div>
-                                  
+                                  <Link href={`/micro-tasks/${task.id}`} className="w-full">
                                   <Button 
                                     size="sm" 
                                     className="mt-2 sm:mt-0 bg-orange-500 hover:bg-orange-600 text-white"
@@ -799,6 +803,7 @@ export default function MicroTasksPage() {
                                   >
                                     {isExpired ? 'Expired' : 'View Details'}
                                   </Button>
+                                  </Link>
                                 </div>
                               </div>
                             </div>

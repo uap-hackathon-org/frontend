@@ -24,21 +24,25 @@ import {
 } from 'react-icons/hi';
 
 export default function AdminDashboardLayout({ children, params }) {
-  // Unwrap params using React.use()
+  // Create a client layout wrapper
+  return <ClientAdminDashboardLayout params={params}>{children}</ClientAdminDashboardLayout>;
+}
+
+// Client component that handles all the rendering and state
+function ClientAdminDashboardLayout({ children, params }) {
+  // Properly unwrap params with React.use() to avoid the warning
   const unwrappedParams = use(params);
-  const { id } = unwrappedParams;
+  const { id } = unwrappedParams || {};
   
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isClient, setIsClient] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { toast } = useToast();
-  const { dictionary } = useLanguage();
-  const { t } = dictionary;
+  const { t } = useLanguage()
   
   useEffect(() => {
-    // This ensures we're on the client side
-    setIsClient(true);
+    setMounted(true);
     
     // Simulate loading admin data
     setTimeout(() => {
@@ -78,27 +82,19 @@ export default function AdminDashboardLayout({ children, params }) {
     },
   ];
   
-  // Only render full content on client-side
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Loading admin dashboard...</p>
-        </div>
+  // Create a consistent loading component that renders the same on both server and client
+  const loadingComponent = (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+        <p className="text-lg text-gray-600 dark:text-gray-300">Loading admin dashboard...</p>
       </div>
-    );
-  }
+    </div>
+  );
   
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Loading admin dashboard...</p>
-        </div>
-      </div>
-    );
+  // If not mounted yet or still loading, show the loading component
+  if (!mounted || isLoading) {
+    return loadingComponent;
   }
   
   return (

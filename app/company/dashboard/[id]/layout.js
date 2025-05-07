@@ -30,26 +30,36 @@ import {
 import { getMockCompanyById } from '@/lib/mock';
 
 export default function CompanyDashboardLayout({ children, params }) {
-  // Unwrap params using React.use()
+  // Create a client layout wrapper
+  return <ClientCompanyDashboardLayout params={params}>{children}</ClientCompanyDashboardLayout>;
+}
+
+// Client component that handles all the rendering and state
+function ClientCompanyDashboardLayout({ children, params }) {
+  // Properly unwrap params with React.use() to avoid the warning
   const unwrappedParams = use(params);
-  const { id } = unwrappedParams;
+  const { id } = unwrappedParams || {};
+  
   const [company, setCompany] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { toast } = useToast();
   
+  // First useEffect to handle mounting state
   useEffect(() => {
-    // Fetch company data
-    const fetchCompany = async () => {
+    setMounted(true);
+  }, []);
+  
+  // Second useEffect to fetch data after mounting
+  useEffect(() => {
+    // Fetch company data only after mounting
+    if (mounted) {
       try {
-        // In a real application, this would be a fetch call to an API
-        // Using setTimeout to ensure this only runs client-side
-        setTimeout(() => {
-          const companyData = getMockCompanyById(id);
-          setCompany(companyData);
-          setIsLoading(false);
-        }, 0);
+        const companyData = getMockCompanyById(id);
+        setCompany(companyData);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching company data:', error);
         toast({
@@ -59,10 +69,8 @@ export default function CompanyDashboardLayout({ children, params }) {
         });
         setIsLoading(false);
       }
-    };
-    
-    fetchCompany();
-  }, [id, toast]);
+    }
+  }, [id, toast, mounted]);
   
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);

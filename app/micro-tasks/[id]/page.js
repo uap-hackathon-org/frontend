@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/components/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/components/tabs';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { FaCalendarAlt, FaClock, FaLaptopCode, FaTrophy, FaChevronLeft, FaLink, FaFileAlt, FaBuilding } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaLaptopCode, FaTrophy, FaChevronLeft, FaLink, FaFileAlt, FaBuilding, FaClipboardCheck } from 'react-icons/fa';
 import { HiOutlineAcademicCap, HiStar, HiClock, HiTag, HiUsers } from 'react-icons/hi';
 import api from '@/axiosInstance';
 import { events as mockEvents } from '@/lib/mock';
@@ -58,17 +58,20 @@ function ClientMicroTaskDetails({ params }) {
     return new Date(deadline) < new Date();
   };
 
-  // Get user role from localStorage
+  // Get user token and role from localStorage
+  const [authToken, setAuthToken] = useState(null);
+  
   useEffect(() => {
     // Check if we're in the browser environment
     if (typeof window !== 'undefined') {
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const parsedToken = JSON.parse(token);
-          // Extract role from token
-          setUserRole(parsedToken.role || null);
-          console.log('User role:', parsedToken.role);
+        const tokenData = localStorage.getItem('token');
+        if (tokenData) {
+          const parsedToken = JSON.parse(tokenData);
+          // Extract role and token from stored data
+          setUserRole(parsedToken.user_role || null);
+          setAuthToken(parsedToken.token || null);
+          console.log('User role:', parsedToken.user_role);
         }
       } catch (err) {
         console.error('Error parsing token:', err);
@@ -78,7 +81,7 @@ function ClientMicroTaskDetails({ params }) {
 
   // Fetch submissions if user is a company
   useEffect(() => {
-    if (userRole === 'company' && unwrappedParams?.id) {
+    if (userRole === 'company' && unwrappedParams?.id && authToken) {
       const fetchSubmissions = async () => {
         setLoadingSubmissions(true);
         try {
@@ -86,6 +89,9 @@ function ClientMicroTaskDetails({ params }) {
             params: {
               skip: 0,
               limit: 20
+            },
+            headers: {
+              'Authorization': `Bearer ${authToken}`
             }
           });
           
@@ -99,6 +105,14 @@ function ClientMicroTaskDetails({ params }) {
         } catch (err) {
           console.error('Error fetching submissions:', err);
           setSubmissions([]);
+          
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            toast({
+              title: "Authentication Error",
+              description: "You don't have permission to view these submissions.",
+              variant: "destructive"
+            });
+          }
         } finally {
           setLoadingSubmissions(false);
         }
@@ -106,7 +120,7 @@ function ClientMicroTaskDetails({ params }) {
       
       fetchSubmissions();
     }
-  }, [userRole, unwrappedParams?.id]);
+  }, [userRole, unwrappedParams?.id, authToken, toast]);
 
   // Fetch microtask data
   useEffect(() => {
@@ -230,6 +244,15 @@ function ClientMicroTaskDetails({ params }) {
       return;
     }
 
+    if (!authToken) {
+      toast({
+        title: "Authentication Error",
+        description: "You need to be logged in to submit a solution.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSubmitting(true);
     
     try {
@@ -244,13 +267,14 @@ function ClientMicroTaskDetails({ params }) {
         formData.append('solution_link', solutionLink);
       }
       
-      // Make API call to submit the task
+      // Make API call to submit the task with authentication token
       const response = await api.put(
         `/microtasks/${unwrappedParams.id}/submit`, 
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${authToken}`
           }
         }
       );
@@ -272,11 +296,27 @@ function ClientMicroTaskDetails({ params }) {
       }
     } catch (err) {
       console.error('Error submitting task:', err);
-      toast({
-        title: "Submission Failed",
-        description: err.response?.data?.detail || "Failed to submit your solution. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Handle different error scenarios
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        toast({
+          title: "Authentication Error",
+          description: "You don't have permission to submit to this task.",
+          variant: "destructive"
+        });
+      } else if (err.response?.status === 400) {
+        toast({
+          title: "Submission Error",
+          description: err.response?.data?.detail || "Invalid submission data. Please check your file or link.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Submission Failed",
+          description: err.response?.data?.detail || "Failed to submit your solution. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -638,13 +678,30 @@ function ClientMicroTaskDetails({ params }) {
                         ) : (
                           <div className="space-y-4">
                             {submissions.map((submission) => (
-                              <Card key={submission.id} className="overflow-hidden">
-                                <CardHeader className="pb-2">
-                                  <div className="flex justify-between items-start">
+                              <Card key={submission.id} className="overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+                                <CardHeader className="pb-2 bg-gray-50 dark:bg-gray-800/50">
+                                  <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2">
                                     <div>
                                       <div className="flex items-center gap-2">
-                                        <Badge className={`${submission.status === 'pending' ? 'bg-yellow-500' : submission.status === 'approved' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                          {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                                        <Badge className={`${submission.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : 
+                                          submission.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 
+                                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>
+                                          <div className="flex items-center">
+                                            {submission.status === 'pending' ? (
+                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                              </svg>
+                                            ) : submission.status === 'approved' ? (
+                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                              </svg>
+                                            ) : (
+                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                              </svg>
+                                            )}
+                                            {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                                          </div>
                                         </Badge>
                                         <span className="text-sm text-gray-500">
                                           Submitted on {formatDate(submission.submission_date)}
@@ -653,49 +710,114 @@ function ClientMicroTaskDetails({ params }) {
                                       <h4 className="text-lg font-semibold mt-1">Submission #{submission.id}</h4>
                                     </div>
                                     <div className="text-right">
-                                      <p className="text-sm font-medium">Student ID: {submission.student_id}</p>
+                                      <div className="flex items-center justify-end gap-2">
+                                        <Avatar className="h-8 w-8">
+                                          <AvatarFallback className="bg-indigo-100 text-indigo-800 text-xs">
+                                            S{submission.student_id}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <p className="text-sm font-medium">Student ID: {submission.student_id}</p>
+                                      </div>
                                       {submission.score !== null && (
-                                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">
                                           Score: {submission.score}/10
                                         </p>
                                       )}
                                     </div>
                                   </div>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="pt-4">
                                   {submission.file_url ? (
-                                    <div className="border rounded-md p-3 bg-gray-50 dark:bg-gray-800/50">
+                                    <div className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                                       <a 
                                         href={submission.file_url} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
                                       >
-                                        <FaFileAlt className="mr-2" />
-                                        View Submission File
+                                        <FaFileAlt className="mr-2 h-5 w-5" />
+                                        <span className="flex-1">View Submission File</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
                                       </a>
                                     </div>
                                   ) : (
-                                    <p className="text-gray-500 italic">No file attached</p>
+                                    <div className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800/50">
+                                      <div className="flex items-center text-gray-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span className="italic">No file attached</span>
+                                      </div>
+                                    </div>
                                   )}
                                   
-                                  {submission.feedback && (
+                                  {submission.feedback ? (
                                     <div className="mt-4">
-                                      <h5 className="font-medium mb-1">Feedback:</h5>
-                                      <p className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
-                                        {submission.feedback}
-                                      </p>
+                                      <h5 className="font-medium mb-2 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                        </svg>
+                                        Feedback:
+                                      </h5>
+                                      <div className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md border border-gray-200 dark:border-gray-700">
+                                        <p className="whitespace-pre-line">{submission.feedback}</p>
+                                      </div>
+                                    </div>
+                                  ) : submission.status !== 'pending' && (
+                                    <div className="mt-4 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-md text-center text-gray-500 dark:text-gray-400">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                      </svg>
+                                      <p>No feedback provided yet</p>
                                     </div>
                                   )}
                                 </CardContent>
                                 {submission.status === 'pending' && (
-                                  <CardFooter className="border-t pt-4 flex justify-end gap-2">
-                                    <Button variant="outline" className="border-red-500 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/30">
-                                      Reject
-                                    </Button>
-                                    <Button className="bg-green-600 hover:bg-green-700">
-                                      Approve
-                                    </Button>
+                                  <CardFooter className="border-t pt-4 flex flex-col sm:flex-row justify-between gap-2">
+                                    <div className="w-full sm:w-auto">
+                                      <input 
+                                        type="text" 
+                                        placeholder="Add feedback (optional)..."
+                                        className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                                      />
+                                    </div>
+                                    <div className="flex gap-2 w-full sm:w-auto">
+                                      <Button 
+                                        variant="outline" 
+                                        className="flex-1 sm:flex-none border-red-500 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/30"
+                                        onClick={() => {
+                                          // Handle rejection with auth token
+                                          toast({
+                                            title: "Feature Coming Soon",
+                                            description: "Rejection functionality will be available soon.",
+                                            variant: "default"
+                                          });
+                                        }}
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Reject
+                                      </Button>
+                                      <Button 
+                                        className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
+                                        onClick={() => {
+                                          // Handle approval with auth token
+                                          toast({
+                                            title: "Feature Coming Soon",
+                                            description: "Approval functionality will be available soon.",
+                                            variant: "default"
+                                          });
+                                        }}
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Approve
+                                      </Button>
+                                    </div>
                                   </CardFooter>
                                 )}
                               </Card>
@@ -777,7 +899,7 @@ function ClientMicroTaskDetails({ params }) {
                                 <p className="font-medium">{microTask.created_by.company_name || 'Unknown Company'}</p>
                                 {microTask.created_by.id && (
                                   <Link 
-                                    href={`/company/dashboard/${microTask.created_by.id}`}
+                                    href={`/company/${microTask.created_by.id}`}
                                     className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
                                   >
                                     View Company Profile
@@ -884,7 +1006,7 @@ function ClientMicroTaskDetails({ params }) {
                     <p className="font-semibold">{microTask.created_by.company_name || 'Unknown Company'}</p>
                     {microTask.created_by.id && (
                       <Link 
-                        href={`/company/dashboard/${microTask.created_by.id}`}
+                        href={`/company/${microTask.created_by.id}`}
                         className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
                       >
                         View Company Profile

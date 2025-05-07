@@ -322,7 +322,7 @@ export default function CompaniesPage() {
                                   Website <FaExternalLinkAlt className="ml-1" />
                                 </a>
                               )}
-                              <Link href={`/company/dashboard/${company?.id}`}>
+                              <Link href={`/company/${company?.id}`}>
                                 <Button size="sm" variant="primary">
                                   View Details
                                 </Button>

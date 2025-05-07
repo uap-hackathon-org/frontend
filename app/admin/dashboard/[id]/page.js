@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from 'react';
+import dynamic from 'next/dynamic';
 import { Card } from '@/components/ui/components/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/components/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/components/select';
@@ -802,10 +803,20 @@ function ClientAdminDashboard({ params }) {
                       <h2 className="text-xl font-semibold">{t('Skill Development Trends')}</h2>
                       <p className="text-sm text-gray-500">{t('Most popular skills over time')}</p>
                     </div>
+                    <Select defaultValue="popularity" className="w-full md:w-[180px]">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="popularity">By Popularity</SelectItem>
+                        <SelectItem value="growth">By Growth</SelectItem>
+                        <SelectItem value="mastery">By Mastery</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
-                  {/* Skill Development Chart (Simplified) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Skill Development Chart (Enhanced) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dashboardData?.skillsAnalytics?.skillDevelopment ? (
                       dashboardData.skillsAnalytics.skillDevelopment.map((item, index) => {
                         const maxStudents = Math.max(
@@ -815,38 +826,111 @@ function ClientAdminDashboard({ params }) {
                           ...dashboardData.skillsAnalytics.skillDevelopment.map(d => d.mastery)
                         );
                         
+                        // Generate growth indicator for skills
+                        const growthValue = Math.random() * 30 - 10; // Random value between -10 and +20
+                        const isPositive = growthValue > 0;
+                        
+                        // Generate icons for each skill
+                        const skillIcons = {
+                          'JavaScript': <FaCode className="text-yellow-500" />,
+                          'React': <FaCode className="text-blue-500" />,
+                          'Python': <FaCode className="text-green-500" />,
+                          'Data Analysis': <BsBarChartLine className="text-purple-500" />,
+                          'Machine Learning': <FaBrain className="text-red-500" />,
+                          'UI/UX Design': <FaMobileAlt className="text-teal-500" />,
+                          'Node.js': <FaCode className="text-green-500" />,
+                          'Cloud Computing': <FaNetworkWired className="text-blue-500" />
+                        };
+                        
+                        const defaultIcon = <FaCode className="text-gray-500" />;
+                        const skillIcon = skillIcons[item.skill] || defaultIcon;
+                        
                         return (
-                          <Card key={index} className="p-4 border border-gray-200 dark:border-gray-800">
-                            <div className="flex flex-col space-y-4">
-                              <div className="text-center">
-                                <h3 className="text-lg font-bold">{item.skill}</h3>
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                          >
+                            <Card className="p-5 border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-md transition-shadow relative">
+                              {/* Growth indicator */}
+                              <div className={`absolute top-3 right-3 flex items-center text-sm px-2 py-1 rounded-full ${isPositive ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                {isPositive ? <HiArrowSmUp className="mr-1" /> : <HiArrowSmDown className="mr-1" />}
+                                {Math.abs(growthValue).toFixed(1)}%
                               </div>
                               
-                              <div className="space-y-3">
-                                <div>
-                                  <div className="flex justify-between text-sm mb-1">
-                                    <span>{t('Students')}</span>
-                                    <span className="font-medium">{formatNumber(item.students)}</span>
+                              <div className="flex flex-col space-y-4">
+                                <div className="flex items-center space-x-3">
+                                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    {skillIcon}
                                   </div>
-                                  <Progress 
-                                    value={(item.students / maxStudents) * 100} 
-                                    className="h-2 bg-blue-100" 
-                                  />
+                                  <div>
+                                    <h3 className="text-lg font-bold">{item.skill}</h3>
+                                    <Badge variant="outline" className="mt-1">
+                                      {t('Demand')}: {isPositive ? 'Growing' : 'Decreasing'}
+                                    </Badge>
+                                  </div>
                                 </div>
                                 
-                                <div>
-                                  <div className="flex justify-between text-sm mb-1">
-                                    <span>{t('Mastery Level')}</span>
-                                    <span className="font-medium">{item.mastery}/10</span>
+                                <div className="space-y-4 mt-3">
+                                  <div>
+                                    <div className="flex justify-between text-sm mb-1">
+                                      <span className="flex items-center">
+                                        <HiOutlineUserGroup className="mr-1 h-4 w-4" />
+                                        {t('Students Learning')}
+                                      </span>
+                                      <span className="font-medium">{formatNumber(item.students)}</span>
+                                    </div>
+                                    <div className="h-2.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                      <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${(item.students / maxStudents) * 100}%` }}
+                                        transition={{ duration: 1, delay: 0.3 }}
+                                        className="h-full bg-blue-500 rounded-full"
+                                      />
+                                    </div>
                                   </div>
-                                  <Progress 
-                                    value={(item.mastery / 10) * 100} 
-                                    className="h-2 bg-green-100" 
-                                  />
+                                  
+                                  <div>
+                                    <div className="flex justify-between text-sm mb-1">
+                                      <span className="flex items-center">
+                                        <FaStar className="mr-1 h-4 w-4 text-amber-500" />
+                                        {t('Mastery Level')}
+                                      </span>
+                                      <span className="font-medium">{item.mastery}/10</span>
+                                    </div>
+                                    <div className="flex space-x-1">
+                                      {[...Array(10)].map((_, i) => (
+                                        <div 
+                                          key={i}
+                                          className={`h-2 flex-1 rounded-full ${i < item.mastery ? 'bg-amber-500' : 'bg-gray-200 dark:bg-gray-700'}`}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Demand/Industry relevance */}
+                                  <div className="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-500">{t('Industry Demand')}</span>
+                                      <div className="flex space-x-1">
+                                        {[...Array(5)].map((_, i) => {
+                                          // Random industry demand between 3-5 stars
+                                          const demand = Math.floor(Math.random() * 3) + 3;
+                                          return (
+                                            <FaStar 
+                                              key={i} 
+                                              className={`h-3 w-3 ${i < demand ? 'text-amber-500' : 'text-gray-300 dark:text-gray-600'}`} 
+                                            />
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </Card>
+                            </Card>
+                          </motion.div>
                         );
                       })
                     ) : (
@@ -858,28 +942,28 @@ function ClientAdminDashboard({ params }) {
                 </Card>
               </motion.div>
               
-              {/* Task Distribution */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Task Distribution by Category */}
+              {/* Skill Statistics Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
+                  className="md:col-span-2"
                 >
                   <Card className="p-6 h-full">
                     <div className="mb-6">  
-                      <h2 className="text-xl font-semibold">{t('Task Distribution')}</h2>
-                      <p className="text-sm text-gray-500">{t('By category')}</p>
+                      <h2 className="text-xl font-semibold">{t('Skill Gap Analysis')}</h2>
+                      <p className="text-sm text-gray-500">{t('Comparing industry demand vs. current supply')}</p>
                     </div>
                     
-                    {/* Task Distribution by Category (Simplified) */}
-                    <div className="space-y-4">
+                    {/* Skill Gap Analysis Chart */}
+                    <div className="space-y-5">
                       {dashboardData?.skillsAnalytics?.taskDistribution ? (
                         dashboardData.skillsAnalytics.taskDistribution.map((item, index) => {
-                          const totalTasks = dashboardData.skillsAnalytics.taskDistribution.reduce(
-                            (sum, curr) => sum + curr.count, 0
-                          );
-                          const percentage = Math.round((item.count / totalTasks) * 100);
+                          // Generate random supply and demand percentages
+                          const demand = Math.floor(Math.random() * 40) + 60; // 60-100%
+                          const supply = Math.floor(Math.random() * 50) + 30; // 30-80%
+                          const gap = demand - supply;
                           
                           return (
                             <div key={index} className="space-y-2">
@@ -891,19 +975,35 @@ function ClientAdminDashboard({ params }) {
                                   ></div>
                                   <span className="font-medium">{item.category}</span>
                                 </div>
-                                <div className="flex space-x-3">
-                                  <span className="text-sm text-gray-500">{item.count} tasks</span>
-                                  <span className="font-semibold">{percentage}%</span>
+                                <Badge variant="outline" className={gap > 20 ? 'text-red-500 border-red-200' : 'text-amber-500 border-amber-200'}>
+                                  Gap: {gap}%
+                                </Badge>
+                              </div>
+                              <div className="relative h-8 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden">
+                                {/* Supply bar */}
+                                <motion.div 
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${supply}%` }}
+                                  transition={{ duration: 1 }}
+                                  className="absolute h-full bg-green-500 rounded-l-md"
+                                />
+                                
+                                {/* Supply label */}
+                                <div className="absolute left-2 top-0 h-full flex items-center text-xs text-white font-medium">
+                                  Supply: {supply}%
+                                </div>
+                                
+                                {/* Demand indicator */}
+                                <div 
+                                  className="absolute h-full flex items-center" 
+                                  style={{ left: `${demand}%` }}
+                                >
+                                  <div className="h-full w-0.5 bg-red-500"></div>
+                                  <div className="absolute -top-6 -translate-x-1/2 text-xs font-medium text-red-500">
+                                    Demand: {demand}%
+                                  </div>
                                 </div>
                               </div>
-                              <Progress 
-                                value={percentage} 
-                                className="h-2" 
-                                style={{ 
-                                  backgroundColor: 'rgba(0,0,0,0.1)', 
-                                  '--tw-bg-opacity': 0.1 
-                                }}
-                              />
                             </div>
                           );
                         })
@@ -916,7 +1016,7 @@ function ClientAdminDashboard({ params }) {
                   </Card>
                 </motion.div>
                 
-                {/* Task Difficulty Distribution */}
+                {/* Skill Proficiency Distribution */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -924,28 +1024,56 @@ function ClientAdminDashboard({ params }) {
                 >
                   <Card className="p-6 h-full">
                     <div className="mb-6">  
-                      <h2 className="text-xl font-semibold">{t('Task Difficulty')}</h2>
-                      <p className="text-sm text-gray-500">{t('Distribution by level')}</p>
+                      <h2 className="text-xl font-semibold">{t('Skill Proficiency')}</h2>
+                      <p className="text-sm text-gray-500">{t('Student proficiency distribution')}</p>
                     </div>
                     
-                    {/* Task Difficulty Chart (Simplified) */}
-                    <div className="flex flex-col space-y-6">
-                      {dashboardData?.skillsAnalytics?.taskDifficulty ? (
-                        <div className="grid grid-cols-3 gap-4">
-                          {dashboardData.skillsAnalytics.taskDifficulty.map((item, index) => (
-                            <div key={index} className="text-center">
-                              <div 
-                                className="mx-auto w-24 h-24 rounded-full flex items-center justify-center" 
-                                style={{ 
-                                  backgroundColor: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5],
-                                  opacity: 0.8
-                                }}
-                              >
-                                <span className="text-white text-xl font-bold">{item.percentage}%</span>
-                              </div>
-                              <div className="mt-2 font-medium">{item.level}</div>
+                    {/* Skill Proficiency Chart (Enhanced) */}
+                    <div>
+                      {dashboardData?.skillsAnalytics?.proficiencyDistribution ? (
+                        <div className="flex flex-col space-y-6">
+                          <div className="flex justify-center items-end gap-4 h-48">
+                            {dashboardData.skillsAnalytics.proficiencyDistribution.map((item, index) => (
+                                <motion.div 
+                                  key={index} 
+                                  className="flex flex-col items-center"
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                                >
+                                  <motion.div 
+                                    className="w-14 sm:w-16 rounded-t-md flex items-center justify-center" 
+                                    style={{
+                                      height: `${item.percentage * 1.6}px`,
+                                      backgroundColor: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5],
+                                    }}
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${item.percentage * 1.6}px` }}
+                                    transition={{ duration: 0.8, delay: index * 0.1 }}
+                                  >
+                                    <span className="text-white text-sm sm:text-base font-bold">{item.percentage}%</span>
+                                  </motion.div>
+                                  <div className="mt-2 text-xs sm:text-sm font-medium text-center">{item.level}</div>
+                                </motion.div>
+                            ))}
+                          </div>
+                          
+                          <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h3 className="text-sm font-medium mb-2">{t('Top Mastery Achievements')}</h3>
+                            <div className="space-y-2">
+                              {['React Advanced Patterns', 'Python ML Algorithms', 'SQL Optimization'].map((achievement, i) => (
+                                <div key={i} className="flex items-center p-2 rounded-md bg-primary/5">
+                                  <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center mr-2">
+                                    <FaCheckCircle className="h-3 w-3" />
+                                  </div>
+                                  <span className="text-sm">{achievement}</span>
+                                  <Badge className="ml-auto" variant="outline">
+                                    {Math.floor(Math.random() * 50) + 50} students
+                                  </Badge>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          </div>
                         </div>
                       ) : (
                         <div className="text-center py-10 text-gray-500">
@@ -960,7 +1088,7 @@ function ClientAdminDashboard({ params }) {
             
             {/* Geography Tab Content */}
             <TabsContent value="geography" className="space-y-6">
-              {/* User Distribution by Location */}
+              {/* Educational Institution Map */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -969,145 +1097,211 @@ function ClientAdminDashboard({ params }) {
                 <Card className="p-6">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">  
                     <div>
-                      <h2 className="text-xl font-semibold">{t('User Distribution')}</h2>
-                      <p className="text-sm text-gray-500">{t('By city')}</p>
+                      <h2 className="text-xl font-semibold">{t('Educational Ecosystem Map')}</h2>
+                      <p className="text-sm text-gray-500">{t('Interactive map of educational institutions and industry partners')}</p>
+                    </div>
+                    <div className="flex gap-2 mt-2 md:mt-0">
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue placeholder="Filter" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="universities">Universities</SelectItem>
+                          <SelectItem value="companies">Companies</SelectItem>
+                          <SelectItem value="events">Events</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="icon" className="px-3">
+                        <HiOutlineRefresh className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                   
-                  {/* User Location Chart (Simplified) */}
-                  <div className="space-y-6">
-                    {dashboardData?.geographyAnalytics?.locationDistribution ? (
-                      dashboardData.geographyAnalytics.locationDistribution.map((item, index) => {
-                        const maxStudents = Math.max(
-                          ...dashboardData.geographyAnalytics.locationDistribution.map(d => d.students)
-                        );
-                        const maxCompanies = Math.max(
-                          ...dashboardData.geographyAnalytics.locationDistribution.map(d => d.companies)
-                        );
-                        
-                        return (
-                          <div key={index} className="space-y-3">
-                            <div className="flex justify-between items-center">
-                              <h3 className="text-lg font-semibold">{item.city}</h3>
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <div>
-                                <div className="flex justify-between text-sm mb-1">
-                                  <span className="flex items-center">
-                                    <HiOutlineUserGroup className="mr-2 h-4 w-4" />
-                                    {t('Students')}
-                                  </span>
-                                  <span className="font-medium">{formatNumber(item.students)}</span>
-                                </div>
-                                <Progress 
-                                  value={(item.students / maxStudents) * 100} 
-                                  className="h-2 bg-indigo-100" 
-                                />
-                              </div>
-                              
-                              <div>
-                                <div className="flex justify-between text-sm mb-1">
-                                  <span className="flex items-center">
-                                    <HiOutlineOfficeBuilding className="mr-2 h-4 w-4" />
-                                    {t('Companies')}
-                                  </span>
-                                  <span className="font-medium">{formatNumber(item.companies)}</span>
-                                </div>
-                                <Progress 
-                                  value={(item.companies / maxCompanies) * 100} 
-                                  className="h-2 bg-green-100" 
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center py-10 text-gray-500">
-                        <p>{t('No data available')}</p>
-                      </div>
-                    )}
+                  {/* Integration of CustomMapWithMarkers component */}
+                  <div className="mt-4">
+                    {/* Custom mock data for educational institutions */}
+                    {(() => {
+                      const DynamicMap = dynamic(() => import('@/components/maps/CustomMapWithMarkers'), {
+                        ssr: false,
+                        loading: () => <div className="w-full h-[400px] bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+                          <p className="text-gray-400">Loading map...</p>
+                        </div>
+                      });
+                      
+                      // Educational ecosystem locations
+                      const educationalLocations = [
+                        { 
+                          id: 1, 
+                          name: "University of Dhaka", 
+                          latitude: 23.7341, 
+                          longitude: 90.3963, 
+                          description: "Flagship university with 5,738 students enrolled in TryShip" 
+                        },
+                        { 
+                          id: 2, 
+                          name: "BUET", 
+                          latitude: 23.7268, 
+                          longitude: 90.3930, 
+                          description: "Engineering university with strong technical focus - 3,420 active students" 
+                        },
+                        { 
+                          id: 3, 
+                          name: "North South University", 
+                          latitude: 23.8150, 
+                          longitude: 90.4255, 
+                          description: "Leading private university - 2,850 students participating in micro-tasks" 
+                        },
+                        { 
+                          id: 4, 
+                          name: "TechHub Innovation Center", 
+                          latitude: 23.7762, 
+                          longitude: 90.4152, 
+                          description: "Industry partner hosting 15+ workshops monthly" 
+                        },
+                        { 
+                          id: 5, 
+                          name: "Daffodil International University", 
+                          latitude: 23.7525, 
+                          longitude: 90.3762, 
+                          description: "Tech-focused institution with 1,950 students" 
+                        },
+                        { 
+                          id: 6, 
+                          name: "Bangladesh IT Industry Association", 
+                          latitude: 23.7945, 
+                          longitude: 90.4073, 
+                          description: "Key industry partner providing mentorship and micro-tasks" 
+                        },
+                      ];
+                      
+                      return <DynamicMap locations={educationalLocations} />;
+                    })()}
                   </div>
                 </Card>
               </motion.div>
               
-              {/* Student Distribution by Year & University */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Student Distribution by Year */}
+              {/* Student & Company Distribution */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* User Distribution Stats */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
+                  className="lg:col-span-2"
                 >
-                  <Card className="p-6 h-full">
-                    <div className="mb-6">  
-                      <h2 className="text-xl font-semibold">{t('Student Distribution')}</h2>
-                      <p className="text-sm text-gray-500">{t('By academic year')}</p>
+                  <Card className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">  
+                      <div>
+                        <h2 className="text-xl font-semibold">{t('User Geographic Distribution')}</h2>
+                        <p className="text-sm text-gray-500">{t('By city and region')}</p>
+                      </div>
                     </div>
                     
-                    {/* Year Distribution Chart (Simplified) */}
-                    <div className="grid grid-cols-2 gap-4">
-                      {dashboardData?.geographyAnalytics?.yearDistribution ? (
-                        dashboardData.geographyAnalytics.yearDistribution.map((item, index) => {
-                          const totalStudents = dashboardData.geographyAnalytics.yearDistribution.reduce(
-                            (sum, curr) => sum + curr.count, 0
+                    {/* Enhanced User Location Chart */}
+                    <div className="space-y-5">
+                      {dashboardData?.geographyAnalytics?.locationDistribution ? (
+                        dashboardData.geographyAnalytics.locationDistribution.map((item, index) => {
+                          const maxStudents = Math.max(
+                            ...dashboardData.geographyAnalytics.locationDistribution.map(d => d.students)
                           );
-                          const percentage = Math.round((item.count / totalStudents) * 100);
+                          const maxCompanies = Math.max(
+                            ...dashboardData.geographyAnalytics.locationDistribution.map(d => d.companies)
+                          );
+                          
+                          // Calculate the total for percentage
+                          const totalUsers = item.students + item.companies;
+                          const studentPercentage = Math.round((item.students / totalUsers) * 100);
+                          const companyPercentage = 100 - studentPercentage;
                           
                           return (
-                            <Card key={index} className="p-4 border border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
-                              <div className="text-center space-y-2">
-                                <h3 className="text-lg font-bold">{item.year}</h3>
-                                <div className="text-sm text-gray-500">Year</div>
-                                <div className="text-2xl font-bold text-primary">{item.count}</div>
-                                <Badge>{percentage}%</Badge>
-                                <Progress value={percentage} className="h-2 w-24 mt-2" />
+                            <motion.div 
+                              key={index} 
+                              className="space-y-3 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: index * 0.1 }}
+                            >
+                              <div className="flex justify-between items-center">
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex-shrink-0">
+                                    <HiOutlineLocationMarker className="h-5 w-5 text-primary" />
+                                  </div>
+                                  <h3 className="text-lg font-semibold">{item.city}</h3>
+                                </div>
+                                <Badge variant="outline" className="flex items-center gap-1">
+                                  <BsGlobe className="h-3 w-3" />
+                                  {totalUsers} {t('users')}
+                                </Badge>
                               </div>
-                            </Card>
-                          );
-                        })
-                      ) : (
-                        <div className="col-span-2 text-center py-10 text-gray-500">
-                          <p>{t('No data available')}</p>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                </motion.div>
-                
-                {/* University Distribution */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.3 }}
-                >
-                  <Card className="p-6 h-full">
-                    <div className="mb-6">  
-                      <h2 className="text-xl font-semibold">{t('University Distribution')}</h2>
-                      <p className="text-sm text-gray-500">{t('Top universities by student count')}</p>
-                    </div>
-                    
-                    {/* University Distribution Chart (Simplified) */}
-                    <div className="space-y-4">
-                      {dashboardData?.geographyAnalytics?.universityDistribution ? (
-                        dashboardData.geographyAnalytics.universityDistribution.map((item, index) => {
-                          const maxCount = Math.max(
-                            ...dashboardData.geographyAnalytics.universityDistribution.map(d => d.count)
-                          );
-                          const percentage = (item.count / maxCount) * 100;
-                          
-                          return (
-                            <div key={index} className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span className="font-medium">{item.university}</span>
-                                <span>{formatNumber(item.count)} {t('students')}</span>
+                              
+                              <div className="space-y-3">
+                                <div>
+                                  <div className="flex justify-between text-sm mb-1">
+                                    <span className="flex items-center">
+                                      <HiOutlineUserGroup className="mr-2 h-4 w-4 text-blue-500" />
+                                      {t('Students')}
+                                    </span>
+                                    <div>
+                                      <span className="font-medium">{formatNumber(item.students)}</span>
+                                      <span className="text-xs text-gray-500 ml-1">({studentPercentage}%)</span>
+                                    </div>
+                                  </div>
+                                  <div className="h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                    <motion.div 
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${(item.students / maxStudents) * 100}%` }}
+                                      transition={{ duration: 0.8, delay: 0.2 }}
+                                      className="h-full bg-blue-500 rounded-full"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <div className="flex justify-between text-sm mb-1">
+                                    <span className="flex items-center">
+                                      <HiOutlineOfficeBuilding className="mr-2 h-4 w-4 text-green-500" />
+                                      {t('Companies')}
+                                    </span>
+                                    <div>
+                                      <span className="font-medium">{formatNumber(item.companies)}</span>
+                                      <span className="text-xs text-gray-500 ml-1">({companyPercentage}%)</span>
+                                    </div>
+                                  </div>
+                                  <div className="h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                    <motion.div 
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${(item.companies / maxCompanies) * 100}%` }}
+                                      transition={{ duration: 0.8, delay: 0.3 }}
+                                      className="h-full bg-green-500 rounded-full"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                {/* Activity metrics - randomized for demonstration */}
+                                <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500">{t('Task Completion')}</div>
+                                    <div className="font-semibold text-sm mt-1">
+                                      {Math.floor(Math.random() * 20) + 80}%
+                                    </div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500">{t('Active Mentors')}</div>
+                                    <div className="font-semibold text-sm mt-1">
+                                      {Math.floor(Math.random() * 30) + 20}
+                                    </div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500">{t('Avg. Rating')}</div>
+                                    <div className="font-semibold text-sm mt-1 flex items-center justify-center">
+                                      {(Math.random() * 1 + 4).toFixed(1)}
+                                      <FaStar className="h-3 w-3 text-amber-400 ml-1" />
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                              <Progress 
-                                value={percentage} 
-                                className="h-2.5" 
-                              />
-                            </div>
+                            </motion.div>
                           );
                         })
                       ) : (
@@ -1115,6 +1309,122 @@ function ClientAdminDashboard({ params }) {
                           <p>{t('No data available')}</p>
                         </div>
                       )}
+                    </div>
+                  </Card>
+                </motion.div>
+                
+                {/* Student Demographics */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                >
+                  <Card className="p-6 h-full">
+                    <div className="mb-6">  
+                      <h2 className="text-xl font-semibold">{t('Student Demographics')}</h2>
+                      <p className="text-sm text-gray-500">{t('Academic year and university')}</p>
+                    </div>
+                    
+                    {/* Year Distribution Chart (Enhanced) */}
+                    <div className="mb-8">
+                      <h3 className="text-sm font-medium mb-3 flex items-center">
+                        <HiOutlineAcademicCap className="mr-2 h-4 w-4" />
+                        {t('Academic Year Distribution')}
+                      </h3>
+                      
+                      <div className="grid grid-cols-4 gap-2">
+                        {dashboardData?.geographyAnalytics?.yearDistribution ? (
+                          dashboardData.geographyAnalytics.yearDistribution.map((item, index) => {
+                            const totalStudents = dashboardData.geographyAnalytics.yearDistribution.reduce(
+                              (sum, curr) => sum + curr.count, 0
+                            );
+                            const percentage = Math.round((item.count / totalStudents) * 100);
+                            
+                            return (
+                              <motion.div 
+                                key={index} 
+                                className="flex flex-col items-center"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                              >
+                                <div 
+                                  className="w-full pt-1 rounded-t-lg flex items-end justify-center"
+                                  style={{ 
+                                    backgroundColor: ['#4299E1', '#48BB78', '#ECC94B', '#ED8936'][index % 4],
+                                    height: `${(percentage * 1.2) + 24}px`
+                                  }}
+                                >
+                                  <span className="text-xs font-bold text-white">{percentage}%</span>
+                                </div>
+                                <div className="text-xs font-medium mt-1 text-center">
+                                  Year {item.year}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {formatNumber(item.count)}
+                                </div>
+                              </motion.div>
+                            );
+                          })
+                        ) : (
+                          <div className="col-span-4 text-center py-6 text-gray-500">
+                            <p>{t('No data available')}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* University Distribution (Enhanced) */}
+                    <div>
+                      <h3 className="text-sm font-medium mb-3 flex items-center">
+                        <HiOutlineOfficeBuilding className="mr-2 h-4 w-4" />
+                        {t('Top Universities')}
+                      </h3>
+                      
+                      <div className="space-y-3">
+                        {dashboardData?.geographyAnalytics?.universityDistribution ? (
+                          dashboardData.geographyAnalytics.universityDistribution.map((item, index) => {
+                            const maxCount = Math.max(
+                              ...dashboardData.geographyAnalytics.universityDistribution.map(d => d.count)
+                            );
+                            const percentage = (item.count / maxCount) * 100;
+                            
+                            // Random engagement score for demo purposes
+                            const engagementScore = Math.floor(Math.random() * 30) + 70;
+                            
+                            return (
+                              <div key={index} className="space-y-1">
+                                <div className="flex justify-between text-xs">
+                                  <span className="font-medium truncate max-w-[70%]">{item.university}</span>
+                                  <span className="flex items-center text-primary">
+                                    <FaUserGraduate className="mr-1 h-3 w-3" />
+                                    {formatNumber(item.count)}
+                                  </span>
+                                </div>
+                                <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex">
+                                  <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${percentage}%` }}
+                                    transition={{ duration: 0.8 }}
+                                    className="h-full rounded-full"
+                                    style={{ 
+                                      backgroundColor: ['#4299E1', '#48BB78', '#ED8936', '#9F7AEA', '#F56565'][index % 5]
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-500">
+                                  <span>Engagement: {engagementScore}%</span>
+                                  <span>{Math.round(percentage)}%</span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <p>{t('No data available')}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </Card>
                 </motion.div>

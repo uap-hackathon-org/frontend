@@ -87,11 +87,6 @@ function ClientCompanyDashboardLayout({ children, params }) {
       path: `/company/dashboard/${id}`,
     },
     {
-      name: t('postTask'),
-      icon: <HiClipboardList className="h-5 w-5" />,
-      path: `/company/dashboard/${id}/post-task`,
-    },
-    {
       name: t('taskListings'),
       icon: <HiPuzzle className="h-5 w-5" />,
       path: `/company/dashboard/${id}/task-listings`,
@@ -115,6 +110,11 @@ function ClientCompanyDashboardLayout({ children, params }) {
       name: t('studentProfiles'),
       icon: <HiUsers className="h-5 w-5" />,
       path: `/company/dashboard/${id}/student-profiles`,
+    },
+    {
+      name: t('postTask'),
+      icon: <HiClipboardList className="h-5 w-5" />,
+      path: `/company/dashboard/${id}/post-task`,
     },
   ];
   

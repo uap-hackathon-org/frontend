@@ -142,10 +142,6 @@ export default function Hero({ landing = true }) {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className='bg-white dark:bg-gray-800 mr-8 mt-2 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 min-w-[200px] z-50'>
-                  <div className='px-4 py-3 border-b border-gray-200 dark:border-gray-700'>
-                    <p className='text-sm font-medium text-gray-900 dark:text-white'>{t('signedInAs')}</p>
-                    <p className='text-sm text-gray-500 dark:text-gray-400 truncate'>user@example.com</p>
-                  </div>
                   
                   <div className='py-2'>
                     <DropdownMenuItem className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors duration-200'>

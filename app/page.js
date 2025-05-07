@@ -4,7 +4,7 @@ import { Quicksand, Poppins, Lato } from 'next/font/google'
 import Link from 'next/link'
 import { Button } from '@/components/ui/components/button'
 import { BsLightningFill } from 'react-icons/bs'
-import { FaRoute, FaHotel, FaPlane, FaMapMarkedAlt } from 'react-icons/fa'
+import { FaChartLine, FaTrophy } from 'react-icons/fa'
 import SupportChat from '@/components/utils/chat/SupportChat'
 import { useEffect } from 'react'
 import { emailSend } from '@/components/utilities/sms'
@@ -14,7 +14,7 @@ import { motion } from 'framer-motion'
 const poppins = Lato({ subsets: ['latin'], weight: '700' })
 const playfair = Quicksand({ subsets: ['latin'], weight: '400' })
 import Lottie from 'lottie-react'
-import landing from '@/components/lottie/ai.json'
+import landing from '@/components/lottie/landing.json'
 import { FaGraduationCap, FaBook, FaLaptopCode, FaChalkboardTeacher } from 'react-icons/fa'
 
 export default function Home() {
@@ -22,24 +22,24 @@ export default function Home() {
   
   const features = [
     {
-      icon: <FaRoute className="w-6 h-6 text-primary" />,
-      title: t('smartItineraries'),
-      description: t('smartItinerariesDesc')
+      icon: <FaGraduationCap className="w-6 h-6 text-primary" />,
+      title: t('mentorMatching'),
+      description: t('mentorMatchingDesc')
     },
     {
-      icon: <FaHotel className="w-6 h-6 text-primary" />,
-      title: t('accommodation'),
-      description: t('accommodationDesc')
+      icon: <FaLaptopCode className="w-6 h-6 text-primary" />,
+      title: t('microTasks'),
+      description: t('microTasksDesc')
     },
     {
-      icon: <FaPlane className="w-6 h-6 text-primary" />,
-      title: t('flightBooking'),
-      description: t('flightBookingDesc')
+      icon: <FaChartLine className="w-6 h-6 text-primary" />,
+      title: t('aiRoadmap'),
+      description: t('aiRoadmapDesc')
     },
     {
-      icon: <FaMapMarkedAlt className="w-6 h-6 text-primary" />,
-      title: t('localGuides'),
-      description: t('localGuidesDesc')
+      icon: <FaTrophy className="w-6 h-6 text-primary" />,
+      title: t('scoreboardSystem'),
+      description: t('scoreboardSystemDesc')
     }
   ]
 

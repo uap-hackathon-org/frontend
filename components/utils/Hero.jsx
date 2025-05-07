@@ -79,8 +79,9 @@ export default function Hero({ landing = true }) {
         {/* Navigation - Center */}
         <div className='flex-1 flex justify-center space-x-4'>
           <TabItem to="/" value={t('home')} className='mx-4' />
-          <TabItem to="/about" value={t('about')} className='mx-4' />
-          <TabItem to="/contact" value={t('contact')} className='mx-4' />
+          <TabItem to="/companies" value={t('companies')} className='mx-4' />
+          <TabItem to="/workshops" value={t('workshops')} className='mx-4' />
+          <TabItem to="/micro-tasks" value={t('microTasks')} className='mx-4' />
         </div>
 
         {/* Auth Controls - Right */}
